@@ -31,7 +31,7 @@ begin
 update : process(reset, clk)
 begin
 	if reset = '0' then
-		regfile <= (0 => (others => '0'), others => (others => '0'));
+		regfile <= (0 => (others => '0'), others => (others => 'X'));
 	elsif rising_edge(clk) then
 		regfile <= regfile_next;
 
