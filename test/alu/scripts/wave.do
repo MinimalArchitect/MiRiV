@@ -1,6 +1,8 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /tb/CLK_PERIOD
+add wave -noupdate /tb/clk
+add wave -noupdate /tb/res_n
 add wave -noupdate -divider Input
 add wave -noupdate /tb/alu_inst/op
 add wave -noupdate /tb/alu_inst/A

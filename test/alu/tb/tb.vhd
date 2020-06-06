@@ -6,6 +6,7 @@ use ieee.std_logic_textio.all;
 library std; -- for Printing
 use std.textio.all;
 
+use work.mem_pkg.all;
 use work.op_pkg.all;
 use work.core_pkg.all;
 use work.tb_util_pkg.all;
@@ -27,7 +28,7 @@ architecture bench of tb is
 
     type INPUT is
         record
-            alu_op   : std_logic;
+            alu_op   : alu_op_type;
             data_a   : data;
             data_b   : data;
         end record;
@@ -39,7 +40,7 @@ architecture bench of tb is
         end record;
 
     signal inp  : INPUT := (
-        '0',
+        ALU_NOP,
         (others => '0'),
         (others => '0')
     );
@@ -50,7 +51,7 @@ architecture bench of tb is
         variable result : INPUT;
     begin
         l := get_next_valid_line(f);
-        result.alu_op := str_to_sl(l(1));
+        result.alu_op := str_to_alu_op(l.all);
 
         l := get_next_valid_line(f);
         result.data_a := bin_to_slv(l.all, DATA_WIDTH);
@@ -81,17 +82,17 @@ architecture bench of tb is
 
         if passed then
             report " PASSED: "
-            & "op=" & std_logic'image(inp.alu_op)
+            & "op=" & alu_op_type'image(inp.alu_op)
             & " A=" & slv_to_bin(inp.data_a)
             & " B=" & slv_to_bin(inp.data_b) & lf
             severity note;
         else
             report "FAILED: "
-            & "op=" & std_logic'image(inp.alu_op)
+            & "op=" & alu_op_type'image(inp.alu_op)
             & " A=" & slv_to_bin(inp.data_a)
-            & " B=" & slv_to_bin(inp.data_b)
-            & "**      expected: R=" & slv_to_bin(output_ref.data_res) & " Z=" & slv_to_bin(output_ref.z_flag) & lf
-            & "**        actual: R=" & slv_to_bin(outp.data_res) & " Z=" & slv_to_bin(outp.z_flag) & lf
+            & " B=" & slv_to_bin(inp.data_b) & lf
+            & "**      expected: R=" & slv_to_bin(output_ref.data_res) & " Z=" & std_logic'image(output_ref.z_flag) & lf
+            & "**        actual: R=" & slv_to_bin(outp.data_res) & " Z=" & std_logic'image(outp.z_flag) & lf
             severity error;
         end if;
     end procedure;
