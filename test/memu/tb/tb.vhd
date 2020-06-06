@@ -120,8 +120,8 @@ architecture bench of tb is
 
         if passed then
             report " PASSED: "
-            & "op=" & memu_op_type'image(inp.memu_op.memtype)
-            & "r/w=" & std_logic'image(inp.memu_op.memread) & "/" & std_logic'image(inp.memu_op.memwrite)
+            & "op=" & memtype_type'image(inp.memu_op.memtype)
+            & " r/w=" & std_logic'image(inp.memu_op.memread) & "/" & std_logic'image(inp.memu_op.memwrite)
             & " A=" & slv_to_bin(inp.A)
             & " W=" & slv_to_bin(inp.W) & lf
             & " D.busy=" & std_logic'image(inp.D.busy) 
@@ -129,15 +129,15 @@ architecture bench of tb is
             severity note;
         else
             report "FAILED: "
-            & "op=" & memu_op_type'image(inp.memu_op.memtype)
-            & "r/w=" & std_logic'image(inp.memu_op.memread) & "/" & std_logic'image(inp.memu_op.memwrite)
+            & "op=" & memtype_type'image(inp.memu_op.memtype)
+            & " r/w=" & std_logic'image(inp.memu_op.memread) & "/" & std_logic'image(inp.memu_op.memwrite)
             & " A=" & slv_to_bin(inp.A)
             & " W=" & slv_to_bin(inp.W) & lf
             & " D.busy=" & std_logic'image(inp.D.busy) 
             & " D.rddata=" & slv_to_bin(inp.D.rddata) & lf
             & "**      expected:"
             & " R=" & slv_to_bin(output_ref.R) 
-            & " B=" & slv_to_bin(output_ref.B) 
+            & " B=" & std_logic'image(output_ref.B) 
             & " XL=" & std_logic'image(output_ref.XL) 
             & " XS=" & std_logic'image(output_ref.XS)
             & " M.address=" & slv_to_bin(output_ref.M.address)
@@ -146,7 +146,7 @@ architecture bench of tb is
             & " M.wrdata=" & slv_to_bin(output_ref.M.wrdata) & lf
             & "**        actual:"
             & " R=" & slv_to_bin(output_ref.R) 
-            & " B=" & slv_to_bin(outp.B) 
+            & " B=" & std_logic'image(outp.B) 
             & " XL=" & std_logic'image(outp.XL) 
             & " XS=" & std_logic'image(outp.XS)
             & " M.address=" & slv_to_bin(outp.M.address)
@@ -159,7 +159,7 @@ architecture bench of tb is
 
 begin
 
-    memu_inst : entity work.alu
+    memu_inst : entity work.memu
         port map
         (
             op => inp.memu_op,
