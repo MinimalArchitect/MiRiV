@@ -76,7 +76,7 @@ begin
 
 end process;
 
-programm_counter : process(all)
+program_counter : process(all)
 begin
 	pc_next <= pc;
 

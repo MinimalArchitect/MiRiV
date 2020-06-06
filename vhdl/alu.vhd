@@ -26,33 +26,33 @@ begin
 			R <= B;
 		when ALU_SLT =>
 			if signed(A) < signed(B) then
-				R <= std_logic_vector(to_signed(1, data_type'length));
+				R <= (0 => '1', others => '0');
 			else
-				R <= std_logic_vector(to_signed(0, data_type'length));
+				R <= (others => '0');
 			end if;
 		when ALU_SLTU =>
 			if unsigned(A) < unsigned(B) then
-				R <= std_logic_vector(to_unsigned(1, data_type'length));
+				R <= (0 => '1', others => '0');
 			else
-				R <= std_logic_vector(to_unsigned(0, data_type'length));
+				R <= (others => '0');
 			end if;
 		when ALU_SLL =>
 			R <= std_logic_vector(
 				shift_left(
 					unsigned(A),
-					to_integer(unsigned(B(5 downto 0)))
+					to_integer(unsigned(B(4 downto 0)))
 				));
 		when ALU_SRL =>
 			R <= std_logic_vector(
 				shift_right(
 					unsigned(A),
-					to_integer(unsigned(B(5 downto 0)))
+					to_integer(unsigned(B(4 downto 0)))
 				));
 		when ALU_SRA =>
 			R <= std_logic_vector(
 				shift_right(
 					signed(A),
-					to_integer(unsigned(B(5 downto 0)))
+					to_integer(unsigned(B(4 downto 0)))
 				));
 		when ALU_ADD =>
 			R <= std_logic_vector(signed(A) + signed(B));

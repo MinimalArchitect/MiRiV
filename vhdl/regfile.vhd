@@ -20,27 +20,46 @@ end entity;
 architecture rtl of regfile is
 	type regfile_t is ARRAY(REG_COUNT-1 downto 0) of data_type;
 
-	signal regfile		: regfile_t;
-	signal regfile_next	: regfile_t;
+	signal regfile			: regfile_t;
+	signal regfile_next		: regfile_t;
 
-	signal rdaddr1_latch	: reg_adr_type;
-	signal rdaddr2_latch	: reg_adr_type;
-	signal wraddr_latch	: reg_adr_type;
+	signal read_address1_previous	: reg_adr_type;
+	signal read_address2_previous	: reg_adr_type;
+	signal write_address_previous	: reg_adr_type;
+
+	signal read_address1		: reg_adr_type;
+	signal read_address2		: reg_adr_type;
+	signal write_address		: reg_adr_type;
 begin
 
 update : process(reset, clk)
 begin
 	if reset = '0' then
-		regfile <= (0 => (others => '0'), others => (others => 'X'));
+		regfile <= ((to_integer(unsigned(ZERO_REG))) => ZERO_DATA, others => INVALID_REG);
+
+		read_address1_previous <= ZERO_REG;
+		read_address2_previous <= ZERO_REG;
+		write_address_previous <= ZERO_REG;
+
 	elsif rising_edge(clk) then
 		regfile <= regfile_next;
 
-		-- also latch read and write addresses, if not stalled
-		if stall = '0' then
-			rdaddr1_latch	<= rdaddr1;
-			rdaddr2_latch	<= rdaddr2;
-			wraddr_latch	<= wraddr;
-		end if;
+		read_address1_previous <= read_address1;
+		read_address2_previous <= read_address2;
+		write_address_previous <= write_address;
+	end if;
+end process;
+
+latch_or_stall : process(all)
+begin
+	if stall = '0' then
+		write_address <= wraddr;
+		read_address1 <= rdaddr1;
+		read_address2 <= rdaddr2;
+	else 
+		write_address <= write_address_previous;
+		read_address1 <= read_address1_previous;
+		read_address2 <= read_address2_previous;
 	end if;
 end process;
 
@@ -48,24 +67,24 @@ write : process(all)
 begin
 	regfile_next <= regfile;
 	-- regfile cannot change if stalled or not written, also don't change reg0
-	if stall = '0' and regwrite = '1' and to_integer(unsigned(wraddr_latch)) /= 0 then
-		regfile_next(to_integer(unsigned(wraddr_latch))) <= wrdata;
+	if stall = '0' and regwrite = '1' and to_integer(unsigned(write_address)) /= 0 then
+		regfile_next(to_integer(unsigned(write_address))) <= wrdata;
 	end if;
 end process;
 
 read : process(all)
 begin
-	rddata1 <= regfile(to_integer(unsigned(rdaddr1_latch)));
-	rddata2 <= regfile(to_integer(unsigned(rdaddr2_latch)));
+	rddata1 <= regfile(to_integer(unsigned(read_address1)));
+	rddata2 <= regfile(to_integer(unsigned(read_address2)));
 
 	-- these equality operations work, because the vector have the same length
 	-- if stalled, regfile could not change, so no forwarding
 	-- if write address is to reg0 don't forward write data to read data, because reg0 is never changed
-	if stall = '0' and regwrite = '1' and wraddr = rdaddr1_latch and to_integer(unsigned(wraddr_latch)) /= 0 then
+	if stall = '0' and regwrite = '1' and wraddr = read_address1 and to_integer(unsigned(wraddr)) /= 0 then
 		rddata1 <= wrdata;
 	end if;
 
-	if stall = '0' and regwrite = '1' and wraddr = rdaddr2_latch and to_integer(unsigned(wraddr_latch)) /= 0 then
+	if stall = '0' and regwrite = '1' and wraddr = read_address2 and to_integer(unsigned(wraddr)) /= 0 then
 		rddata2 <= wrdata;
 	end if;
 end process;
