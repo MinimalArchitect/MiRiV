@@ -31,53 +31,90 @@ memory_output : process(all)
 begin
 	M.byteena <= (others => '0');
 	M.wrdata <= (others => 'X');
-
-	case op.memtype is
-		when MEM_B|MEM_BU =>
-			case A(1 downto 0) is
-				when "00" =>
-					M.byteena(3) <= '1';
-					M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
-				when "01" =>
-					M.byteena(2) <= '1';
-					M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
-				when "10" =>
-					M.byteena(1) <= '1';
-					M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
-				when "11" =>
-					M.byteena(0) <= '1';
-					M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
-				when others =>
-			end case;
-		when MEM_H|MEM_HU =>
-			case A(1 downto 0) is
-				when "00"|"01" =>
-					M.byteena(3 downto 2) <= "11";
-					M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
-					M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
-				when "10"|"11" =>
-					M.byteena(1 downto 0) <= "11";
-					M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
-					M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
-				when others =>
-			end case;
-		when MEM_W =>
-			case A(1 downto 0) is
-				when "00"|"01"|"10"|"11" =>
-					M.byteena(3 downto 0) <= "1111";
-					M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
-					M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
-					M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
-					M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
-				when others =>
-			end case;
-		when others =>
-	end case;
+   M.rd <= op.memread;
+   M.wr <= op.memwrite;
+   M.address <= A(ADDR_WIDTH + 1 downto 2);
+   
+   if op.memwrite = '1' and op.memread = '0' then
+      case op.memtype is
+         when MEM_B|MEM_BU =>
+            case A(1 downto 0) is
+               when "00" =>
+                  M.byteena(3) <= '1';
+                  M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
+               when "01" =>
+                  M.byteena(2) <= '1';
+                  M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
+               when "10" =>
+                  M.byteena(1) <= '1';
+                  M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
+               when "11" =>
+                  M.byteena(0) <= '1';
+                  M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
+               when others =>
+            end case;
+         when MEM_H|MEM_HU =>
+            case A(1 downto 0) is
+               when "00"|"01" =>
+                  M.byteena(3 downto 2) <= "11";
+                  M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
+                  M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
+                  if A(1 downto 0) = "01" then
+                     M.rd <= '0';
+                     M.wr <= '0';
+                  end if;
+               when "10"|"11" =>
+                  M.byteena(1 downto 0) <= "11";
+                  M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
+                  M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
+                  if A(1 downto 0) = "11" then
+                     M.rd <= '0';
+                     M.wr <= '0';
+                  end if;
+               when others =>
+            end case;
+            
+         when MEM_W =>
+            M.byteena(3 downto 0) <= "1111";
+            M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
+            M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
+            M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
+            M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
+            case A(1 downto 0) is
+               when "01"|"10"|"11" =>
+                  M.rd <= '0';
+                  M.wr <= '0';
+               when others =>
+            end case;
+         when others =>
+      end case;
+   elsif op.memread = '1' and op.memwrite = '0' then
+      case op.memtype is
+			when MEM_H|MEM_HU =>
+				case A(1 downto 0) is
+					when "01"|"11" =>
+						M.rd <= '0';
+                  M.wr <= '0';
+					when others =>
+				end case;
+			when MEM_W =>
+				case A(1 downto 0) is
+					when "01"|"10"|"11" =>
+						M.rd <= '0';
+                  M.wr <= '0';
+					when others =>
+				end case;
+			when others =>
+		end case;
+   else
+      M <= MEM_OUT_NOP;
+   end if;
 end process;
 
 result : process(all)
 begin
 	R <= (others => '0');
+   B <= D.busy;
 	case op.memtype is
 		when MEM_B =>
 			case A(1 downto 0) is
@@ -153,27 +190,19 @@ begin
 		case op.memtype is
 			when MEM_H =>
 				case A(1 downto 0) is
-					when "01" =>
-						XL <= '1';
-					when "11" =>
+					when "01"|"11" =>
 						XL <= '1';
 					when others =>
 				end case;
 			when MEM_HU =>
 				case A(1 downto 0) is
-					when "01" =>
-						XL <= '1';
-					when "11" =>
+					when "01"|"11" =>
 						XL <= '1';
 					when others =>
 				end case;
 			when MEM_W =>
 				case A(1 downto 0) is
-					when "01" =>
-						XL <= '1';
-					when "10" =>
-						XL <= '1';
-					when "11" =>
+					when "01"|"10"|"11" =>
 						XL <= '1';
 					when others =>
 				end case;
@@ -189,27 +218,19 @@ begin
 		case op.memtype is
 			when MEM_H =>
 				case A(1 downto 0) is
-					when "01" =>
-						XS <= '1';
-					when "11" =>
+					when "01"|"11" =>
 						XS <= '1';
 					when others =>
 				end case;
 			when MEM_HU =>
 				case A(1 downto 0) is
-					when "01" =>
-						XS <= '1';
-					when "11" =>
+					when "01"|"11" =>
 						XS <= '1';
 					when others =>
 				end case;
 			when MEM_W =>
 				case A(1 downto 0) is
-					when "01" =>
-						XS <= '1';
-					when "10" =>
-						XS <= '1';
-					when "11" =>
+					when "01"|"10"|"11" =>
 						XS <= '1';
 					when others =>
 				end case;
