@@ -8,4 +8,4 @@ vcom -work work -2008 ../../vhdl/fetch.vhd
 
 # compile testbench ad utility package
 vcom -work work -2008 ../tb_util_pkg.vhd
-#vcom -work work -2008 tb/tb.vhd
+vcom -work work -2008 tb/tb.vhd
