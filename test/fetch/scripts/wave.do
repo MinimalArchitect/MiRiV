@@ -7,11 +7,11 @@ add wave -noupdate -divider Input
 add wave -noupdate /tb/fetch_inst/stall
 add wave -noupdate /tb/fetch_inst/flush
 add wave -noupdate /tb/fetch_inst/pcsrc
-add wave -noupdate /tb/fetch_inst/pc_in
+add wave -noupdate -radix unsigned /tb/fetch_inst/pc_in
 add wave -noupdate -hex /tb/fetch_inst/mem_in
 add wave -noupdate -divider Output
 add wave -noupdate /tb/fetch_inst/mem_busy
-add wave -noupdate /tb/fetch_inst/pc_out
+add wave -noupdate -radix unsigned /tb/fetch_inst/pc_out
 add wave -noupdate -hex /tb/fetch_inst/instr
 add wave -noupdate -hex /tb/fetch_inst/mem_out
 TreeUpdate [SetDefaultTree]
