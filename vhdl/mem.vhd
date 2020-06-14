@@ -117,8 +117,8 @@ begin
          sig_wrdata_next <= ZERO_DATA;
       elsif stall = '1' then
          sig_mem_op_next <= sig_mem_op;
-         sig_mem_op_next.mem.memread = '0';
-         sig_mem_op_next.mem.memwrite = '0';
+         sig_mem_op_next.mem.memread <= '0';
+         sig_mem_op_next.mem.memwrite <= '0';
          sig_wb_op_next <= sig_wb_op;
          sig_pc_new_next <= sig_pc_new;
          sig_pc_old_next <= sig_pc_old;
@@ -145,7 +145,7 @@ begin
       aluresult_out <= sig_aluresult;
       case sig_mem_op.branch is
          when BR_NOP =>
-            pcrsrc <= '0';
+            pcsrc <= '0';
          when BR_BR =>
             pcsrc <= '1';
          when BR_CND =>
@@ -153,6 +153,7 @@ begin
          when BR_CNDI =>
             pcsrc <= not zero;
          when others =>
+      end case;
    end process;
    
    reg_write.write <= '0';

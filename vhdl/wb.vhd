@@ -48,7 +48,7 @@ begin
    proc : process (stall, flush, aluresult, memresult, pc_old_in, op.src, op.write, op.rd, reg_wr, reg_reg, reg_data)
    begin
       if flush = '1' then
-         reg_write_next <= '0';
+         reg_wr_next <= '0';
          reg_reg_next <= ZERO_REG;
          reg_data_next <= ZERO_DATA;
       elsif stall = '1' then
