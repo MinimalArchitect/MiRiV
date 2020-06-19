@@ -55,7 +55,7 @@ architecture rtl of decode is
         signal program_counter	: pc_type;
         signal instruction	: instr_type;
 
-	signal opcode			: std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
+	signal opcode	: std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
 
 	-- from registered instruction
 	signal register_address1	: reg_adr_type;
