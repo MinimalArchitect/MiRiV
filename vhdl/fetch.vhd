@@ -28,9 +28,8 @@ entity fetch is
 end fetch;
 
 architecture rtl of fetch is
-	signal pc			: pc_type;
-
-	signal pc_next			: pc_type;
+	signal pc	: pc_type;
+	signal pc_next	: pc_type;
 begin
 
 update : process(reset, clk)

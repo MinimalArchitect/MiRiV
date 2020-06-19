@@ -48,6 +48,9 @@ package tb_util_pkg is
     
     -- Converts a string to a wbsrc_type.
     function str_to_wbs_op(str : string) return wbsrc_type;
+    
+    -- Converts a string to a branch_type.
+    function str_to_br(str : string) return branch_type;
 
     -- Trims a string (removes leading and tailing spaces
     function trim(str : string) return string;
@@ -300,6 +303,23 @@ package body tb_util_pkg is
             -- This shouldn't happen
             report "Unknown op-code '" & str & "' -- defaulting to WBS_ALU" severity warning;
             return WBS_ALU;
+        end if;
+    end function;
+
+    function str_to_br(str : string) return branch_type is
+    begin
+        if str = "BR_NOP" then
+            return BR_NOP;
+        elsif str = "BR_BR" then
+            return BR_BR;
+        elsif str = "BR_CND" then
+            return BR_CND;
+        elsif str = "BR_CNDI" then
+            return BR_CNDI;
+        else
+            -- This shouldn't happen
+            report "Unknown branch-typw '" & str & "' -- defaulting to BR_NOP" severity warning;
+            return BR_NOP;
         end if;
     end function;
 end package body;

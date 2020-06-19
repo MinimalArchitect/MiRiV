@@ -11,8 +11,8 @@ entity alu is
 	port (
 		op	: in  alu_op_type;
 		A, B	: in  data_type;
-		R	: out data_type	:= (others => '0');
-		Z	: out std_logic	:= '0'
+		R	: out data_type;
+		Z	: out std_logic
 	);
 end alu;
 
@@ -21,6 +21,7 @@ begin
 
 result : process (all)
 begin
+	R <= (others => '-');
 	case op is
 		when ALU_NOP =>
 			R <= B;
