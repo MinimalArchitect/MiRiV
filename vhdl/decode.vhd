@@ -48,8 +48,6 @@ architecture rtl of decode is
 	constant OPC_LUI	: opcode_type	:= "0110111";
 	constant OPC_NOP	: opcode_type	:= "0001111";
 
-	type instruction_format_type is (R, I, S, B, U, J, INVALID);
-
 
 	signal funct7	: std_logic_vector(FUNCT7_BIT_WIDTH-1 downto 0);
 	signal funct3	: std_logic_vector(FUNCT3_BIT_WIDTH-1 downto 0);
@@ -58,7 +56,6 @@ architecture rtl of decode is
         signal instruction	: instr_type;
 
 	signal opcode			: std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
-	signal instruction_format	: instruction_format_type;
 
 	-- from registered instruction
 	signal register_address1	: reg_adr_type;
@@ -126,35 +123,7 @@ register_address2 <= instruction(24 downto 20);
 
 result_register_address <= instruction(11 downto 7);
 
-decode_instruction_format : process(opcode)
-begin
-	instruction_format <= INVALID;
-	case opcode is
-		when OPC_LOAD =>
-			instruction_format <= I;
-		when OPC_STORE =>
-			instruction_format <= S;
-		when OPC_BRANCH =>
-			instruction_format <= B;
-		when OPC_JALR =>
-			instruction_format <= I;
-		when OPC_JAL =>
-			instruction_format <= J;
-		when OPC_OP_IMM =>
-			instruction_format <= I;
-		when OPC_OP =>
-			instruction_format <= R;
-		when OPC_AUIPC =>
-			instruction_format <= U;
-		when OPC_LUI =>
-			instruction_format <= U;
-		when OPC_NOP =>
-			instruction_format <= I;
-		when others =>
-	end case;
-end process;
-
-decode_immediate : process(opcode, instruction_format, instruction)
+decode_immediate : process(opcode, instruction)
 begin
 	immediate <= (others => '0');
 	case opcode is
@@ -212,17 +181,17 @@ begin
 	end case;
 end process;
 
-check_if_writeback : process(opcode, instruction_format)
+check_if_writeback : process(opcode)
 begin
 	writeback <= '0';
-	case instruction_format is
-		when R =>
+	case opcode is
+		when OPC_OP =>
 			writeback <= '1';
-		when I =>
+		when OPC_LOAD|OPC_JALR|OPC_OP_IMM|OPC_NOP =>
 			writeback <= '1';
-		when S|B =>
+		when OPC_STORE|OPC_BRANCH =>
 			writeback <= '0';
-		when U|J =>
+		when OPC_AUIPC|OPC_LUI|OPC_JAL =>
 			writeback <= '1';
 		when others =>
 	end case;
@@ -232,7 +201,7 @@ begin
 	end if;
 end process;
 
-memory_type : process(all)
+memory_type : process(opcode, funct3)
 begin
 	mem_type <= MEM_W;
 	case opcode is
@@ -264,7 +233,17 @@ begin
 	end case;
 end process;
 
-wb_source : process(all)
+with opcode select
+memory_read <=
+	'1' when OPC_LOAD,
+	'0' when others;
+
+with opcode select
+memory_write <=
+	'1' when OPC_STORE,
+	'0' when others;
+
+wb_source : process(opcode)
 begin
 	writeback_source <= WBS_ALU;
 	case opcode is
@@ -405,27 +384,7 @@ begin
 	end case;
 end process;
 
-memory_read_signal : process(opcode)
-begin
-	memory_read <= '0';
-	case opcode is
-		when OPC_LOAD =>
-			memory_read <= '1';
-		when others =>
-	end case;
-end process;
-
-memory_write_signal : process(opcode)
-begin
-	memory_write <= '0';
-	case opcode is
-		when OPC_STORE =>
-			memory_write <= '1';
-		when others =>
-	end case;
-end process;
-
-fetch_branch_type : process(opcode, funct3)
+branch_type : process(opcode, funct3)
 begin
 	branch_op <= BR_NOP;
 	case opcode is
@@ -570,33 +529,29 @@ port map(
 	regwrite	=> reg_write.write
 );
 
-output : process(all)
-begin
-	-- pc_out
-	pc_out <= program_counter;
+-- pc_out
+pc_out <= program_counter;
 
-	-- exec_op
-	exec_op.aluop <= alu_op;
-	exec_op.alusrc1 <= source(0);
-	exec_op.alusrc2 <= source(1);
-	exec_op.alusrc3 <= source(2);
-	exec_op.rs1 <= register_address1;
-	exec_op.rs2 <= register_address2;
-	exec_op.readdata1 <= register1;
-	exec_op.readdata2 <= register2;
-	exec_op.imm <= immediate;
+-- exec_op
+exec_op.aluop <= alu_op;
+exec_op.alusrc1 <= source(0);
+exec_op.alusrc2 <= source(1);
+exec_op.alusrc3 <= source(2);
+exec_op.rs1 <= register_address1;
+exec_op.rs2 <= register_address2;
+exec_op.readdata1 <= register1;
+exec_op.readdata2 <= register2;
+exec_op.imm <= immediate;
 
-	-- mem_op
+-- mem_op
+mem_op.branch <= branch_op;
+mem_op.mem.memread <= memory_read;
+mem_op.mem.memwrite <= memory_write;
+mem_op.mem.memtype <= mem_type;
 
-	mem_op.branch <= branch_op;
-	mem_op.mem.memread <= memory_read;
-	mem_op.mem.memwrite <= memory_write;
-	mem_op.mem.memtype <= mem_type;
-
-	-- wb_op
-	wb_op.rd <= result_register_address;
-	wb_op.write <= writeback;
-	wb_op.src <= writeback_source;
-end process;
+-- wb_op
+wb_op.rd <= result_register_address;
+wb_op.write <= writeback;
+wb_op.src <= writeback_source;
 
 end architecture;
