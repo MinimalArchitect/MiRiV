@@ -31,8 +31,11 @@ end entity;
 
 architecture rtl of decode is
 
-	constant OPCODE_WIDTH : integer := 7;
-	subtype opcode_type      is std_logic_vector(OPCODE_WIDTH-1 downto 0);
+	constant OPCODE_BIT_WIDTH : integer := 7;
+	constant FUNCT7_BIT_WIDTH : integer := 7;
+	constant FUNCT3_BIT_WIDTH : integer := 3;
+
+	subtype opcode_type      is std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
 
 	constant OPC_LOAD	: opcode_type	:= "0000011";
 	constant OPC_STORE	: opcode_type	:= "0100011";
@@ -45,20 +48,17 @@ architecture rtl of decode is
 	constant OPC_LUI	: opcode_type	:= "0110111";
 	constant OPC_NOP	: opcode_type	:= "0001111";
 
-	constant OPCODE_BIT_WIDTH	: integer := 7;
-
 	type instruction_format_type is (R, I, S, B, U, J, INVALID);
 
-	signal instruction	: instr_type;
-	signal instruction_next	: instr_type;
-	signal pc		: pc_type;
-	signal pc_next		: pc_type;
+
+	signal funct7	: std_logic_vector(FUNCT7_BIT_WIDTH-1 downto 0);
+	signal funct3	: std_logic_vector(FUNCT3_BIT_WIDTH-1 downto 0);
+
+        signal program_counter	: pc_type;
+        signal instruction	: instr_type;
 
 	signal opcode			: std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
 	signal instruction_format	: instruction_format_type;
-
-	signal funct7	: std_logic_vector(6 downto 0);
-	signal funct3	: std_logic_vector(2 downto 0);
 
 	-- from registered instruction
 	signal register_address1	: reg_adr_type;
@@ -82,15 +82,10 @@ architecture rtl of decode is
 		);
 	end component;
 
-	signal source_register1 : std_logic;
-	signal source_register2 : std_logic;
-	signal source_immediate : std_logic;
+	signal source : std_logic_vector(2 downto 0);
 
 	signal memory_read	: std_logic;
 	signal memory_write	: std_logic;
-
-	signal branch		: branch_type;
-
 
 	signal writeback	: std_logic;
 	signal writeback_source	: wbsrc_type;
@@ -104,14 +99,14 @@ update : process(reset, clk)
 begin
 	if reset = '0' then
 		instruction <= NOP_INST;
-		pc <= ZERO_PC;
+		program_counter <= ZERO_PC;
 	elsif rising_edge(clk) then
 
 		if stall = '1' then
-			pc <= pc;
+			program_counter <= program_counter;
 			instruction <= instruction;
 		else
-			pc <= pc_in;
+			program_counter <= pc_in;
 			instruction <= instr;
 		end if;
 
@@ -121,13 +116,19 @@ begin
 	end if;
 end process;
 
-instruction_next <= instruction;
-pc_next <= pc;
-
 opcode <= instruction(OPCODE_BIT_WIDTH-1 downto 0);
+
+funct7 <= instruction(31 downto 25);
+funct3 <= instruction(14 downto 12);
+
+register_address1 <= instruction(19 downto 15);
+register_address2 <= instruction(24 downto 20);
+
+result_register_address <= instruction(11 downto 7);
 
 decode_instruction_format : process(opcode)
 begin
+	instruction_format <= INVALID;
 	case opcode is
 		when OPC_LOAD =>
 			instruction_format <= I;
@@ -150,81 +151,30 @@ begin
 		when OPC_NOP =>
 			instruction_format <= I;
 		when others =>
-			instruction_format <= INVALID;
 	end case;
 end process;
 
-decode_funct7 : process(instruction_format, instruction)
+decode_immediate : process(opcode, instruction_format, instruction)
 begin
-	funct7 <= (others => 'X');
-	case instruction_format is
-		when R =>
-			funct7 <= instruction(31 downto 25);
-		when others =>
-	end case;
-end process;
-
-decode_funct3 : process(all)
-begin
-	funct3 <= (others => 'X');
-	case instruction_format is
-		when R|I|S|B =>
-			funct3 <= instruction(14 downto 12);
-		when others =>
-	end case;
-end process;
-
-decode_register_adddress1 : process(instruction_format, instruction)
-begin
-	register_address1 <= (others => 'X');
-	case instruction_format is
-		when R|I|S|B =>
-			register_address1 <= instruction(19 downto 15);
-		when others =>
-	end case;
-end process;
-
-decode_register_address2 : process(instruction_format, instruction)
-begin
-	register_address2 <= (others => 'X');
-	case instruction_format is
-		when R|S|B =>
-			register_address2 <= instruction(24 downto 20);
-		when others =>
-	end case;
-end process;
-
-decode_result_address : process(instruction_format, instruction)
-begin
-	result_register_address <= (others => 'X');
-	case instruction_format is
-		when R|I|U|J =>
-			result_register_address <= instruction(11 downto 7);
-		when others =>
-	end case;
-end process;
-
-decode_immediate : process(instruction_format, instruction)
-begin
-	immediate <= (others => 'X');
-	case instruction_format is
-		when I =>
+	immediate <= (others => '0');
+	case opcode is
+		when OPC_LOAD|OPC_JALR|OPC_OP_IMM|OPC_NOP =>
 			immediate(31 downto 11)	<= (others => instruction(31));
 			immediate(10 downto  0)	<= instruction(30 downto 20);
-		when S =>
+		when OPC_STORE =>
 			immediate(31 downto 11)	<= (others => instruction(31));
 			immediate(10 downto 5)	<= instruction(30 downto 25);
 			immediate(4 downto 0)	<= instruction(11 downto 7);
-		when B =>
+		when OPC_BRANCH =>
 			immediate(31 downto 12)	<= (others => instruction(31));
 			immediate(11)		<= instruction(7);
 			immediate(10 downto 5)	<= instruction(30 downto 25);
 			immediate(4 downto 1)	<= instruction(11 downto 8);
 			immediate(0)		<= '0';
-		when U =>
+		when OPC_AUIPC|OPC_LUI =>
 			immediate(31 downto 12)	<= instruction(31 downto 12);
 			immediate(11 downto 0)	<= (others => '0');
-		when J =>
+		when OPC_JAL =>
 			immediate(31 downto 20)	<= (others => instruction(31));
 			immediate(19 downto 12)	<= instruction(19 downto 12);
 			immediate(11)		<= instruction(20);
@@ -234,33 +184,35 @@ begin
 	end case;
 end process;
 
-which_register_or_immediate : process(instruction_format)
+which_register_or_immediate : process(opcode)
 begin
-	source_register1 <= '0';
-	source_register2 <= '0';
-	source_immediate <= '0';
-	case instruction_format is
-		when R =>
-			source_register1 <= '1';
-			source_register2 <= '1';
-			source_immediate <= '0';
-		when I =>
-			source_register1 <= '1';
-			source_register2 <= '0';
-			source_immediate <= '1';
-		when S|B =>
-			source_register1 <= '1';
-			source_register2 <= '1';
-			source_immediate <= '1';
-		when U|J =>
-			source_register1 <= '0';
-			source_register2 <= '0';
-			source_immediate <= '1';
+	source <= "000";
+	case opcode is
+		when OPC_LOAD =>
+			source <= "001";
+		when OPC_STORE =>
+			source <= "001";
+		when OPC_BRANCH =>
+			source <= "111";
+		when OPC_JALR =>
+			source <= "101";
+		when OPC_JAL =>
+			source <= "100";
+		when OPC_OP_IMM =>
+			source <= "001";
+		when OPC_OP =>
+			source <= "011";
+		when OPC_AUIPC =>
+			source <= "010";
+		when OPC_LUI =>
+			source <= "000";
+		when OPC_NOP =>
+			source <= "000";
 		when others =>
 	end case;
 end process;
 
-check_if_writeback : process(instruction_format)
+check_if_writeback : process(opcode, instruction_format)
 begin
 	writeback <= '0';
 	case instruction_format is
@@ -274,212 +226,331 @@ begin
 			writeback <= '1';
 		when others =>
 	end case;
+
+	if opcode = OPC_NOP then
+		writeback <= '0';
+	end if;
+end process;
+
+memory_type : process(all)
+begin
+	mem_type <= MEM_W;
+	case opcode is
+		when OPC_LOAD =>
+			case funct3 is
+				when "000" =>
+					mem_type <= MEM_B;
+				when "001" =>
+					mem_type <= MEM_H;
+				when "010" =>
+					mem_type <= MEM_W;
+				when "100" =>
+					mem_type <= MEM_BU;
+				when "101" =>
+					mem_type <= MEM_HU;
+				when others =>
+			end case;
+		when OPC_STORE =>
+			case funct3 is
+				when "000" =>
+					mem_type <= MEM_B;
+				when "001" =>
+					mem_type <= MEM_H;
+				when "010" =>
+					mem_type <= MEM_W;
+				when others =>
+			end case;
+		when others =>
+	end case;
+end process;
+
+wb_source : process(all)
+begin
+	writeback_source <= WBS_ALU;
+	case opcode is
+		when OPC_LOAD =>
+			writeback_source <= WBS_MEM;
+		when OPC_STORE =>
+			writeback_source <= WBS_ALU;
+		when OPC_BRANCH =>
+			writeback_source <= WBS_ALU;
+		when OPC_JALR =>
+			writeback_source <= WBS_OPC;
+		when OPC_JAL =>
+			writeback_source <= WBS_OPC;
+		when OPC_OP_IMM =>
+			writeback_source <= WBS_ALU;
+		when OPC_OP =>
+			writeback_source <= WBS_ALU;
+		when OPC_AUIPC =>
+			writeback_source <= WBS_ALU;
+		when OPC_LUI =>
+			writeback_source <= WBS_ALU;
+		when OPC_NOP =>
+			writeback_source <= WBS_ALU;
+		when others =>
+	end case;
 end process;
 
 fetch_alu_opcode : process(opcode, funct3, funct7, immediate)
 begin
-	exc_dec <= '0';
-
-	memory_read <= '0';
-	memory_write <= '0';
-	mem_type <= MEM_W;
-
-	branch <= BR_NOP;
-
-	writeback_source <= WBS_ALU;
-
+	alu_op <= ALU_NOP;
 	case opcode is
 		when OPC_LOAD =>
-			-- I Instruction
-			writeback_source <= WBS_MEM;
-			memory_read <= '1';
 			case funct3 is
 				when "000" =>
-					-- LB rd,rs1,imm
 					alu_op <= ALU_ADD;
-					mem_type <= MEM_B;
 				when "001" =>
-					-- LH rd,rs1,imm
 					alu_op <= ALU_ADD;
-					mem_type <= MEM_H;
 				when "010" =>
-					-- LW rd,rs1,imm
 					alu_op <= ALU_ADD;
-					mem_type <= MEM_W;
 				when "100" =>
-					-- LBU rd,rs1,imm
 					alu_op <= ALU_ADD;
-					mem_type <= MEM_BU;
 				when "101" =>
-					-- LHU rd,rs1,imm
 					alu_op <= ALU_ADD;
-					mem_type <= MEM_HU;
 				when others =>
-					exc_dec <= '1';
 			end case;
 		when OPC_STORE =>
-			-- S Instruction
-			memory_write <= '1';
 			case funct3 is
 				when "000" =>
-					-- SB rs1,rs2,imm
 					alu_op <= ALU_ADD;
-					mem_type <= MEM_B;
 				when "001" =>
-					-- SH rs1,rs2,imm
 					alu_op <= ALU_ADD;
-					mem_type <= MEM_H;
 				when "010" =>
-					-- SW rs1,rs2,imm
 					alu_op <= ALU_ADD;
-					mem_type <= MEM_W;
 				when others =>
-					exc_dec <= '1';
 			end case;
 		when OPC_BRANCH =>
-			-- B Instruction
 			case funct3 is
 				when "000" =>
-					-- BEQ rs1,rs2,imm
-					-- use zero flag to determine if equal
 					alu_op <= ALU_SUB;
-					branch <= BR_CND;
 				when "001" =>
-					-- BNE rs1,rs2,imm
-					-- use zero flag to determine if not equal
 					alu_op <= ALU_SUB;
-					branch <= BR_CNDI;
 				when "100" =>
-					-- BLT rs1,rs2,imm
-					-- use zero flag to determine if smaller
 					alu_op <= ALU_SLT;
-					branch <= BR_CND;
 				when "101" =>
-					-- BGE rs1,rs2,imm
-					-- use zero flag to determine if not smaller
 					alu_op <= ALU_SLT;
-					branch <= BR_CNDI;
 				when "110" =>
-					-- BLTU rs1,rs2,imm
-					-- use zero flag to determine if smaller
 					alu_op <= ALU_SLTU;
-					branch <= BR_CND;
 				when "111" =>
-					-- BGEU rs1,rs2,imm
-					-- use zero flag to determine if not smaller
 					alu_op <= ALU_SLTU;
-					branch <= BR_CNDI;
 				when others =>
-					exc_dec <= '1';
 			end case;
 		when OPC_JALR =>
-			-- I Instruction
-			writeback_source <= WBS_OPC;
 			case funct3 is
 				when "000" =>
-					-- JALR rd,rs1,imm
 					alu_op <= ALU_ADD;
-					branch <= BR_BR;
 				when others =>
-					exc_dec <= '1';
 			end case;
 		when OPC_JAL =>
-			-- J Instruction
-			-- JAL rd, imm
 			alu_op <= ALU_ADD;
-			branch <= BR_BR;
-			writeback_source <= WBS_OPC;
 		when OPC_OP_IMM =>
-			-- I Instruction
 			case funct3 is
 				when "000" =>
-					-- ADDI rd,rs1,imm
 					alu_op <= ALU_ADD;
 				when "010" =>
-					-- SLTI rd,rs1,imm
 					alu_op <= ALU_SLT;
 				when "011" =>
-					-- SLTIU rd,rs1,imm
 					alu_op <= ALU_SLTU;
 				when "100" =>
-					-- XORI rd,rs1,imm
 					alu_op <= ALU_XOR;
 				when "110" =>
-					-- ORI rd,rs1,imm
 					alu_op <= ALU_OR;
 				when "111" =>
-					-- ANDI rd,rs1,imm
 					alu_op <= ALU_AND;
 				when "001" =>
 					if immediate(10) = '0' then
-						-- SLLI rd,rs1,shamt
 						alu_op <= ALU_SLL;
-					else
-						exc_dec <= '1';
 					end if;
 				when "101" =>
-					-- should read the smallprint of the assignment
 					if immediate(10) = '0' then
-						-- SRLI rd,rs1,shamt
 						alu_op <= ALU_SRL;
 					else
-						-- SRAI rs,rs1,shamt
 						alu_op <= ALU_SRA;
 					end if;
 				when others =>
-					exc_dec <= '1';
 			end case;
 		when OPC_OP =>
 			-- R Instruction
 			case funct3&funct7 is
 				when "000"&"0000000" =>
-					-- ADD rd,rs1,rs2
 					alu_op <= ALU_ADD;
 				when "000"&"0100000" =>
-					-- SUB rd,rs1,rs2
 					alu_op <= ALU_SUB;
 				when "001"&"0000000" =>
-					-- SLL rd,rs1,rs2
 					alu_op <= ALU_SLL;
 				when "010"&"0000000" =>
-					-- SLT rd,rs1,rs2
 					alu_op <= ALU_SLT;
 				when "011"&"0000000" =>
-					-- SLTU rd,rs1,rs2
 					alu_op <= ALU_SLTU;
 				when "100"&"0000000" =>
-					-- XOR rd,rs1,rs2
 					alu_op <= ALU_XOR;
 				when "101"&"0000000" =>
-					-- SRL rd,rs1,rs2
 					alu_op <= ALU_SRL;
 				when "101"&"0100000" =>
-					-- SRA rd,rs1,rs2
 					alu_op <= ALU_SRA;
 				when "110"&"0000000" =>
-					-- OR rd,rs1,rs2
 					alu_op <= ALU_OR;
 				when "111"&"0000000" =>
-					-- AND rd,rs1,rs2
 					alu_op <= ALU_AND;
 				when others =>
-					exc_dec <= '1';
 			end case;
 		when OPC_AUIPC =>
-			-- U Instruction
-			-- AUIPC rd, imm
-			-- forward imm<<12 directly to alu through B
 			alu_op <= ALU_ADD;
 		when OPC_LUI =>
-			-- U Instruction
-			-- LUI rd, imm
 			alu_op <= ALU_NOP;
-			-- forward imm<<12 directly to alu through B
 		when OPC_NOP =>
-			-- FENCE
 			alu_op <= ALU_NOP;
 		when others =>
-			exc_dec <= '1';
+	end case;
+end process;
+
+memory_read_signal : process(opcode)
+begin
+	memory_read <= '0';
+	case opcode is
+		when OPC_LOAD =>
+			memory_read <= '1';
+		when others =>
+	end case;
+end process;
+
+memory_write_signal : process(opcode)
+begin
+	memory_write <= '0';
+	case opcode is
+		when OPC_STORE =>
+			memory_write <= '1';
+		when others =>
+	end case;
+end process;
+
+fetch_branch_type : process(opcode, funct3)
+begin
+	branch_op <= BR_NOP;
+	case opcode is
+		when OPC_BRANCH =>
+			case funct3 is
+				when "000"|"100"|"110" =>
+					branch_op <= BR_CND;
+				when "001"|"101"|"111" =>
+					branch_op <= BR_CNDI;
+				when others =>
+			end case;
+		when OPC_JALR =>
+			branch_op <= BR_BR;
+		when OPC_JAL =>
+			branch_op <= BR_BR;
+		when others =>
+	end case;
+end process;
+
+decode_exception : process(opcode, funct3, funct7, immediate)
+begin
+	exc_dec <= '1';
+	case opcode is
+		when OPC_LOAD =>
+			case funct3 is
+				when "000" =>
+					exc_dec <= '0';
+				when "001" =>
+					exc_dec <= '0';
+				when "010" =>
+					exc_dec <= '0';
+				when "100" =>
+					exc_dec <= '0';
+				when "101" =>
+					exc_dec <= '0';
+				when others =>
+			end case;
+		when OPC_STORE =>
+			case funct3 is
+				when "000" =>
+					exc_dec <= '0';
+				when "001" =>
+					exc_dec <= '0';
+				when "010" =>
+					exc_dec <= '0';
+				when others =>
+			end case;
+		when OPC_BRANCH =>
+			case funct3 is
+				when "000" =>
+					exc_dec <= '0';
+				when "001" =>
+					exc_dec <= '0';
+				when "100" =>
+					exc_dec <= '0';
+				when "101" =>
+					exc_dec <= '0';
+				when "110" =>
+					exc_dec <= '0';
+				when "111" =>
+					exc_dec <= '0';
+				when others =>
+			end case;
+		when OPC_JALR =>
+			case funct3 is
+				when "000" =>
+					exc_dec <= '0';
+				when others =>
+			end case;
+		when OPC_JAL =>
+			exc_dec <= '0';
+		when OPC_OP_IMM =>
+			case funct3 is
+				when "000" =>
+					exc_dec <= '0';
+				when "010" =>
+					exc_dec <= '0';
+				when "011" =>
+					exc_dec <= '0';
+				when "100" =>
+					exc_dec <= '0';
+				when "110" =>
+					exc_dec <= '0';
+				when "111" =>
+					exc_dec <= '0';
+				when "001" =>
+					if immediate(10) = '0' then
+						exc_dec <= '0';
+					end if;
+				when "101" =>
+					exc_dec <= '0';
+				when others =>
+			end case;
+		when OPC_OP =>
+			-- R Instruction
+			case funct3&funct7 is
+				when "000"&"0000000" =>
+					exc_dec <= '0';
+				when "000"&"0100000" =>
+					exc_dec <= '0';
+				when "001"&"0000000" =>
+					exc_dec <= '0';
+				when "010"&"0000000" =>
+					exc_dec <= '0';
+				when "011"&"0000000" =>
+					exc_dec <= '0';
+				when "100"&"0000000" =>
+					exc_dec <= '0';
+				when "101"&"0000000" =>
+					exc_dec <= '0';
+				when "101"&"0100000" =>
+					exc_dec <= '0';
+				when "110"&"0000000" =>
+					exc_dec <= '0';
+				when "111"&"0000000" =>
+					exc_dec <= '0';
+				when others =>
+			end case;
+		when OPC_AUIPC =>
+			exc_dec <= '0';
+		when OPC_LUI =>
+			exc_dec <= '0';
+		when OPC_NOP =>
+			exc_dec <= '0';
+		when others =>
 	end case;
 end process;
 
@@ -502,13 +573,13 @@ port map(
 output : process(all)
 begin
 	-- pc_out
-	pc_out <= pc;
+	pc_out <= program_counter;
 
 	-- exec_op
 	exec_op.aluop <= alu_op;
-	exec_op.alusrc1 <= source_register1;
-	exec_op.alusrc2 <= source_register2;
-	exec_op.alusrc3 <= source_immediate;
+	exec_op.alusrc1 <= source(0);
+	exec_op.alusrc2 <= source(1);
+	exec_op.alusrc3 <= source(2);
 	exec_op.rs1 <= register_address1;
 	exec_op.rs2 <= register_address2;
 	exec_op.readdata1 <= register1;
@@ -517,7 +588,7 @@ begin
 
 	-- mem_op
 
-	mem_op.branch <= branch;
+	mem_op.branch <= branch_op;
 	mem_op.mem.memread <= memory_read;
 	mem_op.mem.memwrite <= memory_write;
 	mem_op.mem.memtype <= mem_type;
@@ -527,4 +598,5 @@ begin
 	wb_op.write <= writeback;
 	wb_op.src <= writeback_source;
 end process;
+
 end architecture;
