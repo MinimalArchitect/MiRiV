@@ -1,0 +1,517 @@
+# stall
+# flush
+# aluop
+# alusrc1
+# alusrc2
+# alusrc3
+# rs1
+# rs2
+# readdata1
+# readdata2
+# immediate
+
+# programm-counter input
+
+# branch
+# memread
+# memwrite
+# memtype
+# rd
+# write
+# src
+# reg_write_mem.write
+# reg_write_mem.reg
+# reg_write_mem.data
+# reg_write_wr.write
+# reg_write_wr.reg
+# reg_write_wr.data
+
+# OPC_LUI
+
+# Normal
+0
+0
+# ALU
+ALU_NOP
+0
+0
+0
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+0000
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+1
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_AUIPC
+
+# Normal
+0
+0
+# ALU
+ALU_ADD
+0
+1
+0
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+1
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_JAL
+
+# Normal
+0
+0
+# ALU
+ALU_ADD
+0
+0
+1
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+0
+WBS_ALU
+# regwrite MEM
+1
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_JALR
+
+# Normal
+0
+0
+# ALU
+ALU_ADD
+1
+0
+1
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+1
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_BRANCH CND
+
+# Normal
+0
+0
+# ALU
+ALU_AND
+1
+1
+1
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_CND
+0
+0
+MEM_W
+# WB
+00000
+0
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_BRANCH CNDI
+
+# Normal
+0
+0
+# ALU
+ALU_AND
+1
+1
+1
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_CNDI
+0
+0
+MEM_W
+# WB
+00000
+0
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_LOAD
+
+# Normal
+0
+0
+# ALU
+ALU_ADD
+1
+0
+0
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+1
+0
+MEM_W
+# WB
+00000
+1
+WBS_MEM
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_STORE
+
+# Normal
+0
+0
+# ALU
+ALU_ADD
+1
+0
+0
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+1
+MEM_W
+# WB
+00000
+0
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_OP_IMM
+
+# Normal
+0
+0
+# ALU
+ALU_SLTU
+1
+0
+0
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+1
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_OP
+
+# Normal
+0
+0
+# ALU
+ALU_AND
+1
+1
+0
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+1
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# OPC_NOP
+
+# Normal
+0
+0
+# ALU
+ALU_ADD
+0
+0
+0
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+0
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# INVALID but OK testcase
+
+# Normal
+0
+0
+# ALU
+ALU_OR
+0
+1
+1
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+0
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# FLUSH
+
+# Normal
+0
+1
+# ALU
+ALU_OR
+0
+1
+1
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+0
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
+
+# STALL, INVALID
+
+# Normal
+1
+0
+# ALU
+ALU_OR
+0
+1
+1
+00000
+00000
+00000100
+00000010
+00000001
+# PC
+FFF4
+# MEM
+BR_NOP
+0
+0
+MEM_W
+# WB
+00000
+0
+WBS_ALU
+# regwrite MEM
+0
+00000
+00000000
+# regwrite WR
+0
+00000
+00000000
