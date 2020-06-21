@@ -111,10 +111,6 @@ begin
 		when others =>
 	end case;
 	pc_new_out <= std_logic_vector(tmp_a + tmp_b);
-
-	if selector = "101" then
-		pc_new_out(0) <= '0';
-	end if;
 end process;
 
 get_alu_data : process(all)
