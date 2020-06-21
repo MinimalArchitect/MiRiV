@@ -20,6 +20,7 @@ architecture rtl of alu is
 begin
 
 result : process (all)
+	variable shamt : integer;
 begin
 	R <= (others => '-');
 	case op is
@@ -38,23 +39,14 @@ begin
 				R <= (others => '0');
 			end if;
 		when ALU_SLL =>
-			R <= std_logic_vector(
-				shift_left(
-					unsigned(A),
-					to_integer(unsigned(B(4 downto 0)))
-				));
+			shamt := to_integer(unsigned(B(4 downto 0)));
+			R <= std_logic_vector(shift_left(unsigned(A), shamt));
 		when ALU_SRL =>
-			R <= std_logic_vector(
-				shift_right(
-					unsigned(A),
-					to_integer(unsigned(B(4 downto 0)))
-				));
+			shamt := to_integer(unsigned(B(4 downto 0)));
+			R <= std_logic_vector(shift_right(unsigned(A), shamt));
 		when ALU_SRA =>
-			R <= std_logic_vector(
-				shift_right(
-					signed(A),
-					to_integer(unsigned(B(4 downto 0)))
-				));
+			shamt := to_integer(unsigned(B(4 downto 0)));
+			R <= std_logic_vector(shift_right(signed(A), shamt));
 		when ALU_ADD =>
 			R <= std_logic_vector(signed(A) + signed(B));
 		when ALU_SUB =>
