@@ -64,7 +64,12 @@ add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/pc_old_out
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/aluresult_out
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/memresult
 
-add wave -noupdate -divider Writeback
+add wave -noupdate -divider Writeback_INPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/wb_inst/op
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/wb_inst/aluresult
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/wb_inst/memresult
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/wb_inst/pc_old_in
+add wave -noupdate -divider Writeback_OUTPUT
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/wb_inst/reg_write
 
 TreeUpdate [SetDefaultTree]
