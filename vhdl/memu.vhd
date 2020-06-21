@@ -27,94 +27,94 @@ end memu;
 architecture rtl of memu is
 begin
 
-memory_output : process(all)
+memory_output : process(op, A, W)
 begin
 	M.byteena <= (others => '0');
 	M.wrdata <= (others => 'X');
-   M.rd <= op.memread;
-   M.wr <= op.memwrite;
-   M.address <= A(ADDR_WIDTH + 1 downto 2);
-   
-   if op.memwrite = '1' and op.memread = '0' then
-      case op.memtype is
-         when MEM_B|MEM_BU =>
-            case A(1 downto 0) is
-               when "00" =>
-                  M.byteena(3) <= '1';
-                  M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
-               when "01" =>
-                  M.byteena(2) <= '1';
-                  M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
-               when "10" =>
-                  M.byteena(1) <= '1';
-                  M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
-               when "11" =>
-                  M.byteena(0) <= '1';
-                  M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
-               when others =>
-            end case;
-         when MEM_H|MEM_HU =>
-            case A(1 downto 0) is
-               when "00"|"01" =>
-                  M.byteena(3 downto 2) <= "11";
-                  M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
-                  M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
-                  if A(1 downto 0) = "01" then
-                     M.rd <= '0';
-                     M.wr <= '0';
-                  end if;
-               when "10"|"11" =>
-                  M.byteena(1 downto 0) <= "11";
-                  M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
-                  M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
-                  if A(1 downto 0) = "11" then
-                     M.rd <= '0';
-                     M.wr <= '0';
-                  end if;
-               when others =>
-            end case;
-            
-         when MEM_W =>
-            M.byteena(3 downto 0) <= "1111";
-            M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
-            M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
-            M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
-            M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
-            case A(1 downto 0) is
-               when "01"|"10"|"11" =>
-                  M.rd <= '0';
-                  M.wr <= '0';
-               when others =>
-            end case;
-         when others =>
-      end case;
-   elsif op.memread = '1' and op.memwrite = '0' then
-      case op.memtype is
+	M.rd <= op.memread;
+	M.wr <= op.memwrite;
+	M.address <= A(ADDR_WIDTH + 1 downto 2);
+	
+	if op.memread = '0' and op.memwrite = '1' then
+		case op.memtype is
+			when MEM_B|MEM_BU =>
+				case A(1 downto 0) is
+					when "00" =>
+						M.byteena(3) <= '1';
+						M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
+					when "01" =>
+						M.byteena(2) <= '1';
+						M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
+					when "10" =>
+						M.byteena(1) <= '1';
+						M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
+					when "11" =>
+						M.byteena(0) <= '1';
+						M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(BYTE_WIDTH-1 downto 0);
+					when others =>
+				end case;
+			when MEM_H|MEM_HU =>
+				case A(1 downto 0) is
+					when "00"|"01" =>
+						M.byteena(3 downto 2) <= "11";
+						M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
+						M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
+						if A(1 downto 0) = "01" then
+							M.rd <= '0';
+							M.wr <= '0';
+						end if;
+					when "10"|"11" =>
+						M.byteena(1 downto 0) <= "11";
+						M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
+						M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
+						if A(1 downto 0) = "11" then
+							M.rd <= '0';
+							M.wr <= '0';
+						end if;
+					when others =>
+				end case;
+				
+			when MEM_W =>
+				M.byteena(3 downto 0) <= "1111";
+				M.wrdata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= W(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
+				M.wrdata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= W(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
+				M.wrdata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= W(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
+				M.wrdata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= W(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
+				case A(1 downto 0) is
+					when "01"|"10"|"11" =>
+						M.rd <= '0';
+						M.wr <= '0';
+					when others =>
+				end case;
+			when others =>
+		end case;
+	elsif op.memread = '1' and op.memwrite = '0' then
+		case op.memtype is
 			when MEM_H|MEM_HU =>
 				case A(1 downto 0) is
 					when "01"|"11" =>
 						M.rd <= '0';
-                  M.wr <= '0';
+						M.wr <= '0';
 					when others =>
 				end case;
 			when MEM_W =>
 				case A(1 downto 0) is
 					when "01"|"10"|"11" =>
 						M.rd <= '0';
-                  M.wr <= '0';
+						M.wr <= '0';
 					when others =>
 				end case;
 			when others =>
 		end case;
-   else
-      M <= MEM_OUT_NOP;
-   end if;
+	else
+		M <= MEM_OUT_NOP;
+	end if;
 end process;
 
-result : process(all)
+result : process(op, A, D)
 begin
 	R <= (others => '0');
-   B <= D.busy;
+	B <= D.busy;
 	case op.memtype is
 		when MEM_B =>
 			case A(1 downto 0) is
@@ -183,7 +183,7 @@ begin
 	end case;
 end process;
 
-memory_load_exception : process(all)
+memory_load_exception : process(op, A)
 begin
 	XL <= '0';
 	if op.memread then
@@ -211,7 +211,7 @@ begin
 	end if;
 end process;
 
-memory_store_exception : process(all)
+memory_store_exception : process(op, A)
 begin
 	XS <= '0';
 	if op.memwrite then
