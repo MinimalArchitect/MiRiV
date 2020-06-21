@@ -9,9 +9,9 @@ entity regfile is
 		clk			: in  std_logic;
 		reset			: in  std_logic;
 		stall			: in  std_logic;
-		rdaddr1, rdaddr2	: in  reg_adr_type;
+		rdaddr1, rdaddr2	: in  reg_adr_type := ZERO_REG;
 		rddata1, rddata2	: out data_type;
-		wraddr			: in  reg_adr_type;
+		wraddr			: in  reg_adr_type := ZERO_REG;
 		wrdata			: in  data_type;
 		regwrite		: in  std_logic
 	);
@@ -67,17 +67,13 @@ begin
 	rddata1 <= regfile(to_integer(unsigned(read_address1)));
 	rddata2 <= regfile(to_integer(unsigned(read_address2)));
 
-	-- these equality operations work, because the vector have the same length
-	-- if write address is to reg0 don't forward write data to read data, because reg0 is never changed
-	if register_write = '1'
-	   and write_address = read_address1
-	   and to_integer(unsigned(write_address)) /= 0 then
+	-- if write address equals that of reg0, do not forward data to read, because reg0 can never change
+	-- if stalled we do not pass through values that won't be saved in a register
+	if register_write = '1' and write_address = read_address1 and write_address /= ZERO_REG then
 		rddata1 <= write_data;
 	end if;
 
-	if register_write = '1'
-	   and write_address = read_address2
-	   and to_integer(unsigned(write_address)) /= 0 then
+	if register_write = '1' and write_address = read_address2 and write_address /= ZERO_REG then
 		rddata2 <= write_data;
 	end if;
 
