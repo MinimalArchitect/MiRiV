@@ -39,8 +39,8 @@ architecture bench of tb is
 		end record;
 
 	signal inp : INPUT := (
-		('0', (others => '0')),
-		('0', (others => '0'))
+		MEM_IN_NOP,
+		MEM_IN_NOP
 	);
 	signal outp : OUTPUT;
 
@@ -48,35 +48,23 @@ architecture bench of tb is
 		variable l : line;
 		variable result : INPUT;
 	begin
-/*
-	-- read stall
-		l := get_next_valid_line(f);
-		result.stall := str_to_sl(l(1));
 
-	-- read flush
+	-- instruction memory busy
 		l := get_next_valid_line(f);
-		result.flush := str_to_sl(l(1));
+		result.mem_i_in.busy := str_to_sl(l(1));
 
-	-- read pc_in
+	-- instruction memory value
 		l := get_next_valid_line(f);
-		result.pc_in := hex_to_slv(l.all, PC_WIDTH);
+		result.mem_i_in.rddata := bin_to_slv(l.all, INSTR_WIDTH);
 
-	-- instr
+	-- data memory busy
 		l := get_next_valid_line(f);
-		result.instr := bin_to_slv(l.all, INSTR_WIDTH);
+		result.mem_d_in.busy := str_to_sl(l(1));
 
-	-- read reg_write.write
+	-- data memory value
 		l := get_next_valid_line(f);
-		result.reg_write.write := str_to_sl(l(1));
+		result.mem_d_in.rddata := bin_to_slv(l.all, INSTR_WIDTH);
 
-	-- read reg_write.reg
-		l := get_next_valid_line(f);
-		result.reg_write.reg := bin_to_slv(l.all, REG_BITS);
-
-	-- read reg_write.data
-		l := get_next_valid_line(f);
-		result.reg_write.data := hex_to_slv(l.all, DATA_WIDTH);
-*/
 		return result;
 	end function;
 

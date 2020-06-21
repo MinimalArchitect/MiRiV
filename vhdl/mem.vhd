@@ -105,7 +105,7 @@ begin
       end if;
    end process;
    
-   proc : process(stall, flush, sig_mem_op, sig_wb_op, sig_mem_in, sig_aluresult, sig_wrdata, mem_op, wbop_in, mem_in)
+   proc : process(all)
    begin
       if flush = '1' then
          sig_mem_op_next <= MEM_NOP;
@@ -129,14 +129,14 @@ begin
          sig_mem_op_next <= mem_op;
          sig_wb_op_next <= wbop_in;
          sig_pc_new_next <= pc_new_in;
-         sig_pc_old <= pc_old_in;
+         sig_pc_old_next <= pc_old_in;
          sig_mem_in_next <= mem_in;
          sig_aluresult_next <= aluresult_in;
          sig_wrdata_next <= wrdata;
       end if;
    end process;
    
-   output : process (sig_wb_op, sig_pc_new, sig_mem_op.branch, sig_pc_old, sig_aluresult, zero)
+   output : process (all)
    begin
       wbop_out <= sig_wb_op;
       pc_new_out <= sig_pc_new;

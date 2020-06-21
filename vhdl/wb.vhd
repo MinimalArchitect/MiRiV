@@ -56,7 +56,7 @@ begin
          reg_reg_next <= reg_reg;
          reg_data_next <= reg_data;
       else
-         reg_wr <= op.write;
+         reg_wr_next <= op.write;
          reg_reg_next <= op.rd;
          reg_data_next <= reg_data;
          case op.src is 

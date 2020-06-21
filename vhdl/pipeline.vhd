@@ -71,7 +71,7 @@ begin
 	end process;
 	
 	flush <= '0';
-	
+
 	fetch_inst : entity work.fetch
 	port map(
 		clk		=> clk,
@@ -86,7 +86,7 @@ begin
 		mem_out		=> mem_i_out,
 		mem_in		=> mem_i_in
 	);
-	
+
 	decode_inst : entity work.decode
 	port map(
 		clk		=> clk,
@@ -102,7 +102,7 @@ begin
 		wb_op		=> wb_op_decode,
 		exc_dec		=> exc_dec
 	);
-	
+
 	exec_inst : entity work.exec
 	port map(
 		clk		=> clk,
@@ -125,7 +125,7 @@ begin
 		reg_write_mem	=> reg_write_memory,
 		reg_write_wr	=> reg_write_writeback
 	);
-	
+
 	mem_inst : entity work.mem
 	port map(
 		clk		=> clk,
@@ -135,8 +135,8 @@ begin
 		mem_busy	=> mem_busy_mem,
 		mem_op		=> mem_op_execute,
 		wbop_in		=> wb_op_execute,
-		pc_new_in	=> pc_old_execute,
-		pc_old_in	=> pc_new_execute,
+		pc_new_in	=> pc_new_execute,
+		pc_old_in	=> pc_old_execute,
 		aluresult_in	=> aluresult_execute,
 		wrdata		=> wrdata,
 		zero		=> zero,
@@ -165,4 +165,5 @@ begin
 		pc_old_in	=> pc_old,
 		reg_write	=> reg_write_writeback
 	);
+
 end architecture;

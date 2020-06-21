@@ -9,7 +9,64 @@ add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_d_in
 add wave -noupdate -divider Output
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_i_out
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_d_out
-add wave -noupdate -divider Other
+add wave -noupdate -divider Registerfile
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/regfile_inst/regfile
+
+add wave -noupdate -divider Fetch_INPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/pcsrc
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/pc_in
+add wave -noupdate -divider Fetch_OUTPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/pc_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/instr
+
+add wave -noupdate -divider Decode_INPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/pc_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/instr
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/reg_write
+add wave -noupdate -divider Decode_OUTPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/pc_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/exec_op
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/mem_op
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/wb_op
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/exc_dec
+
+add wave -noupdate -divider Execute_INPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/op
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/pc_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/memop_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/wbop_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/reg_write_mem
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/reg_write_wr
+add wave -noupdate -divider Execute_OUTPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/pc_old_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/pc_new_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/aluresult
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/wrdata
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/zero
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/memop_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/wbop_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/exec_inst/exec_op
+
+add wave -noupdate -divider Memory_INPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/mem_op
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/wbop_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/pc_new_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/pc_old_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/aluresult_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/wrdata
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/zero
+add wave -noupdate -divider Memory_OUTPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/reg_write
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/pc_new_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/pcsrc
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/wbop_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/pc_old_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/aluresult_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/memresult
+
+add wave -noupdate -divider Writeback
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/wb_inst/reg_write
+
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ps} 0}
 quietly wave cursor active 0
