@@ -113,13 +113,12 @@ begin
 		if stall = '1' then
 			next_program_counter <= program_counter;
 			next_instruction <= instruction;
+		elsif flush = '1' then
+			next_program_counter <= pc_in;
+			next_instruction <= NOP_INST;
 		else
 			next_program_counter <= pc_in;
 			next_instruction <= instr;
-		end if;
-
-		if flush = '1' then
-			next_instruction <= NOP_INST;
 		end if;
 end process;
 
