@@ -57,7 +57,7 @@ begin
 end process;
 
 
-state_input : process(reset, clk)
+state_input : process(all)
 begin
 	if stall = '1' then
 		next_regfile <= regfile;
