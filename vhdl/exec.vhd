@@ -79,16 +79,16 @@ end process;
 
 state_input : process(reset, clk)
 begin
-	if stall = '1' then
-		next_program_counter <= program_counter;
-		next_operation <= operation;
-		next_memory_operation <= memory_operation;
-		next_writeback_operation <= writeback_operation;
-	elsif flush = '1' then
+	if flush = '1' then
 		next_program_counter <= pc_in;
 		next_operation <= EXEC_NOP;
 		next_memory_operation <= MEM_NOP;
 		next_writeback_operation <= WB_NOP;
+	elsif stall = '1' then
+		next_program_counter <= program_counter;
+		next_operation <= operation;
+		next_memory_operation <= memory_operation;
+		next_writeback_operation <= writeback_operation;
 	else
 		next_program_counter <= pc_in;
 		next_operation <= op;

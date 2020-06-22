@@ -109,13 +109,12 @@ end process;
 
 state_input : process(all)
 begin
-
-		if stall = '1' then
-			next_program_counter <= program_counter;
-			next_instruction <= instruction;
-		elsif flush = '1' then
+		if flush = '1' then
 			next_program_counter <= pc_in;
 			next_instruction <= NOP_INST;
+		elsif stall = '1' then
+			next_program_counter <= program_counter;
+			next_instruction <= instruction;
 		else
 			next_program_counter <= pc_in;
 			next_instruction <= instr;
