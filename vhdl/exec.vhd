@@ -38,9 +38,13 @@ end exec;
 architecture rtl of exec is
 	signal operation		: exec_op_type;
 	signal program_counter		: pc_type;
-
 	signal memory_operation		: mem_op_type;
 	signal writeback_operation	: wb_op_type;
+
+	signal next_operation		: exec_op_type;
+	signal next_program_counter	: pc_type;
+	signal next_memory_operation	: mem_op_type;
+	signal next_writeback_operation	: wb_op_type;
 
 	component alu is
 		port (
@@ -66,23 +70,30 @@ begin
 		memory_operation <= MEM_NOP;
 		writeback_operation <= WB_NOP;
 	elsif rising_edge(clk) then
-		if stall = '1' then
-			program_counter <= program_counter;
-			operation <= operation;
-			memory_operation <= memory_operation;
-			writeback_operation <= writeback_operation;
-		else
-			program_counter <= pc_in;
-			operation <= op;
-			memory_operation <= memop_in;
-			writeback_operation <= wbop_in;
-		end if;
+		program_counter <= next_program_counter;
+		operation <= next_operation;
+		memory_operation <= next_memory_operation;
+		writeback_operation <= next_writeback_operation;
+	end if;
+end process;
 
-		if flush = '1' then
-			operation <= EXEC_NOP;
-			memory_operation <= MEM_NOP;
-			writeback_operation <= WB_NOP;
-		end if;
+state_input : process(reset, clk)
+begin
+	if stall = '1' then
+		next_program_counter <= program_counter;
+		next_operation <= operation;
+		next_memory_operation <= memory_operation;
+		next_writeback_operation <= writeback_operation;
+	elsif flush = '1' then
+		next_program_counter <= pc_in;
+		next_operation <= EXEC_NOP;
+		next_memory_operation <= MEM_NOP;
+		next_writeback_operation <= WB_NOP;
+	else
+		next_program_counter <= pc_in;
+		next_operation <= op;
+		next_memory_operation <= memop_in;
+		next_writeback_operation <= wbop_in;
 	end if;
 end process;
 
