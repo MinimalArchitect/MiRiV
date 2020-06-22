@@ -142,15 +142,15 @@ architecture bench of tb is
 			& " busy=" & to_string(inp.mem_in.busy)
 			& " rddata=0x" & slv_to_hex(inp.mem_in.rddata) & lf
 
-			& "** expected: current pc=0x" & slv_to_hex(output_ref.pc_out) &
+			& "** expected: pc_out=0x" & slv_to_hex(output_ref.pc_out) &
 			  " instr=0x" & slv_to_hex(output_ref.instr) &
 			  " mem_busy=" & to_string(output_ref.mem_busy) &
 			  " fetch address=0x" & slv_to_bin(output_ref.mem_out.address) & lf
 
-			& "** actual:   current pc=0x" & slv_to_hex(outp.pc_out) &
+			& "** actual:   pc_out=0x" & slv_to_hex(outp.pc_out) &
 			  " instr=0x" & slv_to_hex(outp.instr) &
 			  " mem_busy=" & to_string(outp.mem_busy) &
-			  " fetch address=0x" & slv_to_bin(outp.mem_out.address) & lf
+			  " fetch address=0x" & slv_to_bin(outp.mem_out.address) & lf & lf
 			severity error;
 		end if;
 	end procedure;
