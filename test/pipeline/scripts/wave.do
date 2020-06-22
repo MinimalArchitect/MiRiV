@@ -15,9 +15,12 @@ add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/regfile_inst
 add wave -noupdate -divider Fetch_INPUT
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/pcsrc
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/pc_in
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/mem_in
 add wave -noupdate -divider Fetch_OUTPUT
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/mem_busy
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/pc_out
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/instr
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/fetch_inst/mem_out
 
 add wave -noupdate -divider Decode_INPUT
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/decode_inst/pc_in
