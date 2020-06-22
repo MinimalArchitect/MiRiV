@@ -21,12 +21,18 @@ architecture rtl of regfile is
 	type regfile_t is ARRAY(REG_COUNT-1 downto 0) of data_type;
 
 	signal regfile			: regfile_t;
-
 	signal read_address1		: reg_adr_type;
 	signal read_address2		: reg_adr_type;
 	signal write_address		: reg_adr_type;
 	signal write_data		: data_type;
 	signal register_write		: std_logic;
+
+	signal next_regfile		: regfile_t;
+	signal next_read_address1	: reg_adr_type;
+	signal next_read_address2	: reg_adr_type;
+	signal next_write_address	: reg_adr_type;
+	signal next_write_data		: data_type;
+	signal next_register_write	: std_logic;
 begin
 
 update : process(reset, clk)
@@ -40,25 +46,37 @@ begin
 		write_data <= INVALID_REG;
 		register_write <= '0';
 	elsif rising_edge(clk) then
-		if stall = '1' then
-			regfile <= regfile;
-			read_address1 <= read_address1;
-			read_address2 <= read_address2;
-			write_address <= write_address;
-			write_data <= write_data;
-			register_write <= regwrite;
-		else
-			regfile <= regfile;
-			if regwrite = '1' and to_integer(unsigned(wraddr)) /= 0 then
-				regfile(to_integer(unsigned(wraddr))) <= wrdata;
-			end if;
+		regfile <= next_regfile;
 
-			read_address1 <= rdaddr1;
-			read_address2 <= rdaddr2;
-			write_address <= wraddr;
-			write_data <= wrdata;
-			register_write <= regwrite;
+		read_address1 <= next_read_address1;
+		read_address2 <= next_read_address2;
+		write_address <= next_write_address;
+		write_data <= next_write_data;
+		register_write <= next_register_write;
+	end if;
+end process;
+
+
+state_input : process(reset, clk)
+begin
+	if stall = '1' then
+		next_regfile <= regfile;
+		next_read_address1 <= read_address1;
+		next_read_address2 <= read_address2;
+		next_write_address <= write_address;
+		next_write_data <= write_data;
+		next_register_write <= regwrite;
+	else
+		next_regfile <= regfile;
+		if regwrite = '1' and to_integer(unsigned(wraddr)) /= 0 then
+			next_regfile(to_integer(unsigned(wraddr))) <= wrdata;
 		end if;
+
+		next_read_address1 <= rdaddr1;
+		next_read_address2 <= rdaddr2;
+		next_write_address <= wraddr;
+		next_write_data <= wrdata;
+		next_register_write <= regwrite;
 	end if;
 end process;
 

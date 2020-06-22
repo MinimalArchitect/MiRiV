@@ -52,8 +52,11 @@ architecture rtl of decode is
 	signal funct7	: std_logic_vector(FUNCT7_BIT_WIDTH-1 downto 0);
 	signal funct3	: std_logic_vector(FUNCT3_BIT_WIDTH-1 downto 0);
 
-        signal program_counter	: pc_type;
-        signal instruction	: instr_type;
+        signal program_counter		: pc_type;
+        signal instruction		: instr_type;
+
+        signal next_program_counter	: pc_type;
+        signal next_instruction		: instr_type;
 
 	signal opcode	: std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
 
@@ -99,18 +102,25 @@ begin
 		program_counter <= ZERO_PC;
 	elsif rising_edge(clk) then
 
+		program_counter <= next_program_counter;
+		instruction <= next_instruction;
+	end if;
+end process;
+
+state_input : process(reset, clk)
+begin
+
 		if stall = '1' then
-			program_counter <= program_counter;
-			instruction <= instruction;
+			next_program_counter <= program_counter;
+			next_instruction <= instruction;
 		else
-			program_counter <= pc_in;
-			instruction <= instr;
+			next_program_counter <= pc_in;
+			next_instruction <= instr;
 		end if;
 
 		if flush = '1' then
-			instruction <= NOP_INST;
+			next_instruction <= NOP_INST;
 		end if;
-	end if;
 end process;
 
 opcode <= instruction(OPCODE_BIT_WIDTH-1 downto 0);

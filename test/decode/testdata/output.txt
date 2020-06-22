@@ -17,6 +17,27 @@
 # wb_op.src
 # exec_dec
 
+# INVALID
+
+0000
+ALU_NOP
+0
+0
+0
+00000
+00000
+00000000
+00000000
+00000000
+BR_NOP
+0
+0
+MEM_W
+00000
+0
+WBS_ALU
+1
+
 # LB rd, rs1, imm
 
 0000

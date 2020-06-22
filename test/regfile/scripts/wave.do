@@ -12,6 +12,8 @@ add wave -noupdate -radix hexadecimal /tb/regfile_inst/wrdata
 add wave -noupdate -divider Output
 add wave -noupdate -radix hexadecimal /tb/regfile_inst/rddata1
 add wave -noupdate -radix hexadecimal /tb/regfile_inst/rddata2
+add wave -noupdate -divider Other
+add wave -noupdate -radix hexadecimal /tb/regfile_inst/regfile
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ps} 0}
 quietly wave cursor active 0
