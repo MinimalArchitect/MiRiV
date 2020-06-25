@@ -123,7 +123,7 @@ architecture bench of tb is
             & "op=" & memtype_type'image(inp.memu_op.memtype)
             & " r/w=" & std_logic'image(inp.memu_op.memread) & "/" & std_logic'image(inp.memu_op.memwrite)
             & " A=" & slv_to_bin(inp.A)
-            & " W=" & slv_to_bin(inp.W) & lf
+            & " W=" & slv_to_bin(inp.W) 
             & " D.busy=" & std_logic'image(inp.D.busy) 
             & " D.rddata=" & slv_to_bin(inp.D.rddata) & lf
             severity note;
@@ -132,7 +132,7 @@ architecture bench of tb is
             & "op=" & memtype_type'image(inp.memu_op.memtype)
             & " r/w=" & std_logic'image(inp.memu_op.memread) & "/" & std_logic'image(inp.memu_op.memwrite)
             & " A=" & slv_to_bin(inp.A)
-            & " W=" & slv_to_bin(inp.W) & lf
+            & " W=" & slv_to_bin(inp.W) 
             & " D.busy=" & std_logic'image(inp.D.busy) 
             & " D.rddata=" & slv_to_bin(inp.D.rddata) & lf
             & "**      expected:"

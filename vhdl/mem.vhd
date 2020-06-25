@@ -72,7 +72,7 @@ architecture rtl of mem is
 begin
    memu_inst : entity work.memu
    port map(
-      op	=> sig_mem_op.mem,
+		op	=> sig_mem_op.mem,
 		A	=> sig_aluresult,
 		W	=> sig_wrdata,
 		R	=> memresult,
