@@ -30,7 +30,7 @@ package core_pkg is
     constant ZERO_REG         : reg_adr_type := (others => '0');
     constant ZERO_DATA        : data_type    := (others => '0');
     constant ZERO_PC          : pc_type      := (others => '0');
-    constant NOP_INST         : instr_type   := X"0000000F";
+    constant NOP_INST         : instr_type   := X"00000013";
 
     constant INVALID_REG      : data_type := (others => '0');
 
