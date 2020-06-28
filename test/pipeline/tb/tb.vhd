@@ -72,79 +72,36 @@ architecture bench of tb is
 		variable l : line;
 		variable result : OUTPUT;
 	begin
-/*
-	-- pc_out
-		l := get_next_valid_line(f);
-		result.pc_out := hex_to_slv(l.all, PC_WIDTH);
+      l := get_next_valid_line(f);
+      result.mem_i_out.address := bin_to_slv(l.all, ADDR_WIDTH);
 
-	-- exec_op.aluop
-		l := get_next_valid_line(f);
-		result.exec_op.aluop := str_to_alu_op(l.all);
+      l := get_next_valid_line(f);
+      result.mem_i_out.rd := str_to_sl(l(1));
 
-	-- exec_op.alusrc1
-		l := get_next_valid_line(f);
-		result.exec_op.alusrc1 := str_to_sl(l(1));
+      l := get_next_valid_line(f);
+      result.mem_i_out.wr := str_to_sl(l(1));
 
-	-- exec_op.alusrc2
-		l := get_next_valid_line(f);
-		result.exec_op.alusrc2 := str_to_sl(l(1));
+      l := get_next_valid_line(f);
+      result.mem_i_out.byteena := bin_to_slv(l.all, BYTEEN_WIDTH);
 
-	-- exec_op.alusrc3
-		l := get_next_valid_line(f);
-		result.exec_op.alusrc3 := str_to_sl(l(1));
+      l := get_next_valid_line(f);
+      result.mem_i_out.wrdata := bin_to_slv(l.all, DATA_WIDTH);
 
-	-- exec_op.rs1
-		l := get_next_valid_line(f);
-		result.exec_op.rs1 := bin_to_slv(l.all, REG_BITS);
+      l := get_next_valid_line(f);
+      result.mem_d_out.address := bin_to_slv(l.all, ADDR_WIDTH);
 
-	-- exec_op.rs2
-		l := get_next_valid_line(f);
-		result.exec_op.rs2 := bin_to_slv(l.all, REG_BITS);
+      l := get_next_valid_line(f);
+      result.mem_d_out.rd := str_to_sl(l(1));
 
-	-- exec_op.readdata1
-		l := get_next_valid_line(f);
-		result.exec_op.readdata1 := hex_to_slv(l.all, DATA_WIDTH);
+      l := get_next_valid_line(f);
+      result.mem_d_out.wr := str_to_sl(l(1));
 
-	-- exec_op.readdata2
-		l := get_next_valid_line(f);
-		result.exec_op.readdata2 := hex_to_slv(l.all, DATA_WIDTH);
+      l := get_next_valid_line(f);
+      result.mem_d_out.byteena := bin_to_slv(l.all, BYTEEN_WIDTH);
 
-	-- exec_op.imm
-		l := get_next_valid_line(f);
-		result.exec_op.imm := hex_to_slv(l.all, DATA_WIDTH);
+      l := get_next_valid_line(f);
+      result.mem_d_out.wrdata := bin_to_slv(l.all, DATA_WIDTH);
 
-	-- mem_op.branch
-		l := get_next_valid_line(f);
-		result.mem_op.branch := str_to_br(l.all);
-
-	-- mem_op.mem.memread
-		l := get_next_valid_line(f);
-		result.mem_op.mem.memread := str_to_sl(l(1));
-
-	-- mem_op.mem.memwrite
-		l := get_next_valid_line(f);
-		result.mem_op.mem.memwrite := str_to_sl(l(1));
-
-	-- mem_op.mem.memtype
-		l := get_next_valid_line(f);
-		result.mem_op.mem.memtype := str_to_mem_op(l.all);
-
-	-- wb_op.rd
-		l := get_next_valid_line(f);
-		result.wb_op.rd := bin_to_slv(l.all, REG_BITS);
-
-	-- wb_op.write
-		l := get_next_valid_line(f);
-		result.wb_op.write := str_to_sl(l(1));
-
-	-- wb_op.src
-		l := get_next_valid_line(f);
-		result.wb_op.src := str_to_wbs_op(l.all);
-
-	-- exc_dec
-		l := get_next_valid_line(f);
-		result.exc_dec := str_to_sl(l(1));
-*/
 		return result;
 	end function;
 
@@ -152,74 +109,35 @@ architecture bench of tb is
 		variable passed : boolean;
 	begin
 		passed := (outp = output_ref);
- -- TODO
-/*
-		if passed then
-			report " PASSED: "
-			& " stall="	& to_string(inp.stall)
-			& " flush="	& to_string(inp.flush)
-			& " pc="	& slv_to_hex(inp.pc_in)
-			& " instr="	& slv_to_hex(inp.instr)
-			& " write="	& to_string(inp.reg_write.write)
-			& " reg="	& to_string(inp.reg_write.reg)
-			& " data="	& slv_to_hex(inp.reg_write.data) & lf
-			severity note;
-		else
-			report "FAILED: "
-			& " stall="	& to_string(inp.stall)
-			& " flush="	& to_string(inp.flush)
-			& " pc="	& slv_to_hex(inp.pc_in)
-			& " instr="	& slv_to_hex(inp.instr)
-			& " write="	& to_string(inp.reg_write.write)
-			& " reg="	& to_string(inp.reg_write.reg)
-			& " data="	& slv_to_hex(inp.reg_write.data) & lf
-			-- pc-out
-			& "** expected: pc_out=0x" & slv_to_hex(output_ref.pc_out) & lf
-			& "** actual:   pc_out=0x" & slv_to_hex(outp.pc_out) & lf
-
-			-- exec_op
-			& "** expected: aluop=" & to_string(output_ref.exec_op.aluop)
-			& " alusrc=" & to_string(output_ref.exec_op.alusrc1) & to_string(output_ref.exec_op.alusrc2) & to_string(output_ref.exec_op.alusrc3)
-			& " rs1=0x" & slv_to_hex(output_ref.exec_op.rs1)
-			& " rs2=0x" & slv_to_hex(output_ref.exec_op.rs2)
-			& " readdata1=0x" & slv_to_hex(output_ref.exec_op.readdata1)
-			& " readdata2=0x" & slv_to_hex(output_ref.exec_op.readdata2)
-			& " imm=0x" & slv_to_hex(output_ref.exec_op.imm) & lf
-
-			& "** actual:   aluop=" & to_string(outp.exec_op.aluop)
-			& " alusrc=" & to_string(outp.exec_op.alusrc1) & to_string(outp.exec_op.alusrc2) & to_string(outp.exec_op.alusrc3)
-			& " rs1=0x" & slv_to_hex(outp.exec_op.rs1)
-			& " rs2=0x" & slv_to_hex(outp.exec_op.rs2)
-			& " readdata1=0x" & slv_to_hex(outp.exec_op.readdata1)
-			& " readdata2=0x" & slv_to_hex(outp.exec_op.readdata2)
-			& " imm=0x" & slv_to_hex(outp.exec_op.imm) & lf
-
-			-- mem_op
-			& "** expected: branch=" & to_string(output_ref.mem_op.branch)
-			& " memread=" & to_string(output_ref.mem_op.mem.memread)
-			& " memwrite=" & to_string(output_ref.mem_op.mem.memwrite)
-			& " memtype=" & to_string(output_ref.mem_op.mem.memtype) & lf
-
-			& "** actual:   branch=" & to_string(outp.mem_op.branch)
-			& " memread=" & to_string(outp.mem_op.mem.memread)
-			& " memwrite=" & to_string(outp.mem_op.mem.memwrite)
-			& " memtype=" & to_string(outp.mem_op.mem.memtype) & lf
-
-			-- wb_op
-			& "** expected: rd=" & to_string(output_ref.wb_op.rd)
-			& " write=" & to_string(output_ref.wb_op.write)
-			& " src=" & to_string(output_ref.wb_op.src) & lf
-
-			& "** actual:   rd=" & to_string(outp.wb_op.rd)
-			& " write=" & to_string(outp.wb_op.write)
-			& " src=" & to_string(outp.wb_op.src) & lf
-
-			-- exc_dec
-			& "** expected: exc_dec=" & to_string(output_ref.exc_dec) & lf
-			& "** actual:   exc_dec=" & to_string(outp.exc_dec) & lf
-			severity error;
-		end if;
-*/
+      if passed then
+         report " PASSED: "
+         & " instruction=" & to_string(inp.mem_i_in.rddata)
+         & " data=" & to_string(inp.mem_d_in.rddata) & lf
+         severity note;
+      else
+         report " FAILED: "
+         & " instruction=" & to_string(inp.mem_i_in.rddata)
+         & " data=" & to_string(inp.mem_d_in.rddata) & lf
+         & "** expected: " 
+         & " instruction address=" & to_string(output_ref.mem_i_out.address) 
+         & "; rd/wr=" & to_string(output_ref.mem_i_out.rd) & "/" & to_string(output_ref.mem_i_out.wr)
+         & "; byteena=" & to_string(output_ref.mem_d_out.byteena)
+         & "; wrdata=" & to_string(output_ref.mem_d_out.wrdata)
+         & " data address=" & to_string(output_ref.mem_d_out.address)
+         & "; rd/wr=" & to_string(output_ref.mem_d_out.rd) & "/" & to_string(output_ref.mem_d_out.wr)
+         & "; byteena=" & to_string(output_ref.mem_d_out.byteena)
+         & "; wrdata=" & to_string(output_ref.mem_d_out.wrdata) & lf
+         & "** actual: " 
+         & " instruction address=" & to_string(outp.mem_i_out.address)
+         & "; rd/wr=" & to_string(outp.mem_i_out.rd) & "/" & to_string(outp.mem_i_out.wr)
+         & "; byteena=" & to_string(outp.mem_i_out.byteena) 
+         & "; wrdata=" & to_string(outp.mem_i_out.wrdata) 
+         & " data address=" & to_string(outp.mem_d_out.address) 
+         & "; rd/wr=" & to_string(outp.mem_d_out.rd) & "/" & to_string(outp.mem_d_out.wr)
+         & "; byteena=" & to_string(outp.mem_d_out.byteena)
+         & "; wrdata=" & to_string(outp.mem_d_out.wrdata) & lf
+         severity error;
+      end if;
 	end procedure;
 
 begin
