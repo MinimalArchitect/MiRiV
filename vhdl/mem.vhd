@@ -61,9 +61,6 @@ architecture rtl of mem is
    signal sig_pc_old       : pc_type;
    signal sig_pc_old_next  : pc_type;
    
-   signal sig_mem_in       : mem_in_type;
-   signal sig_mem_in_next  : mem_in_type;
-   
    signal sig_aluresult    : data_type;
    signal sig_aluresult_next : data_type;
    
@@ -80,7 +77,7 @@ begin
 		XL	=> exc_load,
 		XS	=> exc_store,
 		-- to memory controller
-		D	=> sig_mem_in,
+		D	=> mem_in,
 		M	=> mem_out
    );
    
@@ -91,7 +88,6 @@ begin
          sig_wb_op <= WB_NOP;
          sig_pc_new <= ZERO_PC;
          sig_pc_old <= ZERO_PC;
-         sig_mem_in <= MEM_IN_NOP;
          sig_aluresult <= ZERO_DATA;
          sig_wrdata <= ZERO_DATA;
       elsif rising_edge(clk) then
@@ -99,7 +95,6 @@ begin
          sig_wb_op <= sig_wb_op_next;
          sig_pc_new <= sig_pc_new_next;
          sig_pc_old <= sig_pc_old_next;
-         sig_mem_in <= sig_mem_in_next;
          sig_aluresult <= sig_aluresult_next;
          sig_wrdata <= sig_wrdata_next;
       end if;
@@ -112,7 +107,6 @@ begin
          sig_wb_op_next <= WB_NOP;
          sig_pc_new_next <= ZERO_PC;
          sig_pc_old_next <= ZERO_PC;
-         sig_mem_in_next <= MEM_IN_NOP;
          sig_aluresult_next <= ZERO_DATA;
          sig_wrdata_next <= ZERO_DATA;
       elsif stall = '1' then
@@ -122,7 +116,6 @@ begin
          sig_wb_op_next <= sig_wb_op;
          sig_pc_new_next <= sig_pc_new;
          sig_pc_old_next <= sig_pc_old;
-         sig_mem_in_next <= sig_mem_in;
          sig_aluresult_next <= sig_aluresult;
          sig_wrdata_next <= sig_wrdata;
       else
@@ -130,7 +123,6 @@ begin
          sig_wb_op_next <= wbop_in;
          sig_pc_new_next <= pc_new_in;
          sig_pc_old_next <= pc_old_in;
-         sig_mem_in_next <= mem_in;
          sig_aluresult_next <= aluresult_in;
          sig_wrdata_next <= wrdata;
       end if;
