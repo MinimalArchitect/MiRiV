@@ -58,6 +58,7 @@ add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/pc_old_in
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/aluresult_in
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/wrdata
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/zero
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/mem_in
 add wave -noupdate -divider Memory_OUTPUT
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/mem_busy
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/reg_write
@@ -67,6 +68,9 @@ add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/wbop_out
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/pc_old_out
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/aluresult_out
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/memresult
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/mem_out
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/exc_load
+add wave -noupdate -radix hexadecimal /tb/pipeline_inst/mem_inst/exc_store
 
 add wave -noupdate -divider Writeback_INPUT
 add wave -noupdate -radix hexadecimal /tb/pipeline_inst/wb_inst/op
