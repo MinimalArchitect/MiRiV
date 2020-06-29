@@ -45,7 +45,7 @@ begin
       end if;
    end process;
    
-   proc : process (stall, flush, aluresult, memresult, pc_old_in, op.src, op.write, op.rd, reg_wr, reg_reg, reg_data)
+   proc : process (stall, flush, aluresult, memresult, pc_old_in, op, reg_wr, reg_reg, reg_data)
    begin
       if flush = '1' then
          reg_wr_next <= '0';

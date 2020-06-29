@@ -19,7 +19,7 @@ end alu;
 architecture rtl of alu is
 begin
 
-result : process (all)
+result : process (op, A, B)
 	variable shamt : integer;
 begin
 	R <= (others => '-');
@@ -61,7 +61,7 @@ begin
 	end case;
 end process;
 
-zero_flag : process (all)
+zero_flag : process (op, A, B, R)
 begin
 	case op is
 		when ALU_SUB =>

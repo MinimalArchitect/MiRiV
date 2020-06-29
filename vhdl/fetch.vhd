@@ -47,7 +47,7 @@ begin
 	end if;
 end process;
 
-state_input : process(all)
+state_input : process(stall, pcsrc, inner_flush, flush, pc, pc_in, new_pc)
 begin
 	if stall = '1' then
 		next_pc <= pc;
@@ -63,8 +63,7 @@ end process;
 
 pc_out <= pc;
 
-
-new_process_counter : process(all)
+new_process_counter : process(pcsrc, stall, pc_in, pc)
 begin
 	if pcsrc = '1' and stall = '0' then
 		new_pc <= pc_in;
@@ -72,8 +71,6 @@ begin
 		new_pc <= std_logic_vector(unsigned(pc) + 4);
 	end if;
 end process;
-
-
 
 mem_out.address <= new_pc(PC_WIDTH-1 downto 2);
 mem_out.rd <= '1';
@@ -83,7 +80,7 @@ mem_out.wrdata <= (others => '0');
 
 mem_busy <= mem_in.busy;
 
-memory_read : process(all)
+memory_read : process(mem_in, inner_flush)
 begin
 	instr(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= mem_in.rddata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
 	instr(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= mem_in.rddata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
