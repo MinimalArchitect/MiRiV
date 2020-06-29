@@ -82,18 +82,20 @@ end process;
 
 read : process(all)
 begin
-	rddata1 <= regfile(to_integer(unsigned(read_address1)));
-	rddata2 <= regfile(to_integer(unsigned(read_address2)));
+   if reset = '1' then
+      rddata1 <= regfile(to_integer(unsigned(read_address1)));
+      rddata2 <= regfile(to_integer(unsigned(read_address2)));
 
-	-- if write address equals that of reg0, do not forward data to read, because reg0 can never change
-	-- if stalled we do not pass through values that won't be saved in a register
-	if register_write = '1' and write_address = read_address1 and write_address /= ZERO_REG then
-		rddata1 <= write_data;
-	end if;
+      -- if write address equals that of reg0, do not forward data to read, because reg0 can never change
+      -- if stalled we do not pass through values that won't be saved in a register
+      if register_write = '1' and write_address = read_address1 and write_address /= ZERO_REG then
+         rddata1 <= write_data;
+      end if;
 
-	if register_write = '1' and write_address = read_address2 and write_address /= ZERO_REG then
-		rddata2 <= write_data;
-	end if;
+      if register_write = '1' and write_address = read_address2 and write_address /= ZERO_REG then
+         rddata2 <= write_data;
+      end if;
+   end if;
 
 end process;
 
