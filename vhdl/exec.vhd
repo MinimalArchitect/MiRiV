@@ -77,7 +77,7 @@ begin
 	end if;
 end process;
 
-state_input : process(reset, clk)
+state_input : process(reset, clk, pc_in, program_counter, operation, memory_operation, writeback_operation, op, memop_in, wbop_in, flush, stall)
 begin
 	if flush = '1' then
 		next_program_counter <= pc_in;
