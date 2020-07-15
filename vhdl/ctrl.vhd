@@ -33,4 +33,32 @@ end ctrl;
 
 architecture rtl of ctrl is
 begin
+
+stall_cntrl : process(all)
+begin
+	stall_fetch <= stall;
+	stall_dec <= stall;
+	stall_exec <= stall;
+	stall_mem <= stall;
+	stall_wb <= stall;
+end process;
+
+flush_cntrl : process(all)
+begin
+	flush_fetch <= '0';
+	flush_dec <= '0';
+	flush_exec <= '0';
+	flush_mem <= '0';
+	flush_wb <= '0';
+
+	pcsrc_out <= pcsrc_in;
+
+	-- these stages are affected from a branch
+	if pcsrc_in = '1' then
+		flush_fetch <= '1';
+		flush_dec <= '1';
+		flush_exec <= '1';
+	end if;
+end process;
+
 end architecture;

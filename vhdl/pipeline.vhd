@@ -51,11 +51,28 @@ architecture impl of pipeline is
 	signal exc_load			: std_logic;
 	signal exc_store		: std_logic;
 	signal reg_write_memory		: reg_write_type;
+	signal pcsrc_memory		: std_logic;
 	-- WRITEBACK STAGE
-	signal pcsrc			: std_logic;
 	signal pc_old			: pc_type;
 	signal pc_new			: pc_type;
+	signal pcsrc_writeback		: std_logic;
 	signal reg_write_writeback	: reg_write_type;
+
+	-- CONTROL OVERHEAD
+	signal stall_fetch	: std_logic;
+	signal stall_dec	: std_logic;
+	signal stall_exec	: std_logic;
+	signal stall_mem	: std_logic;
+	signal stall_wb		: std_logic;
+
+	signal flush_fetch	: std_logic;
+	signal flush_dec	: std_logic;
+	signal flush_exec	: std_logic;
+	signal flush_mem	: std_logic;
+	signal flush_wb		: std_logic;
+
+	signal exec_op_execute	: exec_op_type;
+	signal pcsrc_cntrl	: std_logic;
 begin
 	sync : process(clk, reset)
 	begin
@@ -63,23 +80,23 @@ begin
 			stall <= '0';
 		elsif rising_edge(clk) then
 			stall <= '0';
-			
+
 			if mem_busy_fetch = '1' or mem_busy_mem = '1' then
 				stall <= '1';
 			end if;
 		end if;
 	end process;
-	
+
 	flush <= '0';
 
 	fetch_inst : entity work.fetch
 	port map(
 		clk		=> clk,
 		reset		=> reset,
-		stall		=> stall,
-		flush		=> flush,
+		stall		=> stall_fetch,
+		flush		=> flush_fetch,
 		mem_busy	=> mem_busy_fetch,
-		pcsrc		=> pcsrc,
+		pcsrc		=> pcsrc_cntrl,
 		pc_in		=> pc_new,
 		pc_out		=> pc_fetch,
 		instr		=> instr,
@@ -91,8 +108,8 @@ begin
 	port map(
 		clk		=> clk,
 		reset		=> reset,
-		stall		=> stall,
-		flush		=> flush,
+		stall		=> stall_dec,
+		flush		=> flush_dec,
 		pc_in		=> pc_fetch,
 		instr		=> instr,
 		reg_write	=> reg_write_writeback,
@@ -107,8 +124,8 @@ begin
 	port map(
 		clk		=> clk,
 		reset		=> reset,
-		stall		=> stall,
-		flush		=> flush,
+		stall		=> stall_exec,
+		flush		=> flush_exec,
 		op		=> exec_op_decode,
 		pc_in		=> pc_decode,
 		pc_old_out	=> pc_old_execute,
@@ -121,7 +138,7 @@ begin
 		wbop_in		=> wb_op_decode,
 		wbop_out	=> wb_op_execute,
 
-		exec_op		=> open,
+		exec_op		=> exec_op_execute,
 		reg_write_mem	=> reg_write_memory,
 		reg_write_wr	=> reg_write_writeback
 	);
@@ -130,8 +147,8 @@ begin
 	port map(
 		clk		=> clk,
 		reset		=> reset,
-		stall		=> stall,
-		flush		=> flush,
+		stall		=> stall_mem,
+		flush		=> flush_mem,
 		mem_busy	=> mem_busy_mem,
 		mem_op		=> mem_op_execute,
 		wbop_in		=> wb_op_execute,
@@ -142,7 +159,7 @@ begin
 		zero		=> zero,
 		reg_write	=> reg_write_memory,
 		pc_new_out	=> pc_new,
-		pcsrc		=> pcsrc,
+		pcsrc		=> pcsrc_memory,
 		wbop_out	=> wb_op_mem,
 		pc_old_out	=> pc_old,
 		aluresult_out	=> aluresult_memory,
@@ -152,18 +169,45 @@ begin
 		exc_load	=> exc_load,
 		exc_store	=> exc_store
 	);
-	
+
 	wb_inst : entity work.wb
 	port map(
 		clk		=> clk,
 		reset		=> reset,
-		stall		=> stall,
-		flush		=> flush,
+		stall		=> stall_wb,
+		flush		=> flush_wb,
 		op		=> wb_op_mem,
 		aluresult	=> aluresult_memory,
 		memresult	=> memresult,
 		pc_old_in	=> pc_old,
 		reg_write	=> reg_write_writeback
+	);
+
+	ctrl_inst : entity work.ctrl
+	port map(
+		clk		=> clk,
+		reset		=> reset,
+
+		stall		=> stall,
+
+		stall_fetch	=> stall_fetch,
+		stall_dec	=> stall_dec,
+		stall_exec	=> stall_exec,
+		stall_mem	=> stall_mem,
+		stall_wb	=> stall_wb,
+
+		flush_fetch	=> flush_fetch,
+		flush_dec	=> flush_dec,
+		flush_exec	=> flush_exec,
+		flush_mem	=> flush_mem,
+		flush_wb	=> flush_wb,
+
+		-- from FWD
+		wb_op_mem	=> wb_op_mem,
+		exec_op		=> exec_op_execute,
+
+		pcsrc_in	=> pcsrc_memory,
+		pcsrc_out	=> pcsrc_cntrl
 	);
 
 end architecture;
