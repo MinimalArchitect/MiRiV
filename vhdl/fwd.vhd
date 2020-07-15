@@ -31,7 +31,7 @@ begin
 	-- if the register is read and it is the one in the execute stage then forward
 	-- use the latest value possible (first check mem, then wb)
 	if (unsigned(reg) = 0) then
-		-- if it is the 0x register, then don't forward the value
+		-- if it is the x0 register, then don't forward the value
 	elsif (reg_write_mem.write = '1') and (reg = reg_write_mem.reg) then
 		val <= reg_write_mem.data;
 		do_fwd <= '1';
