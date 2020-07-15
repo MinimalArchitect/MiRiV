@@ -34,7 +34,7 @@ end ctrl;
 architecture rtl of ctrl is
 begin
 
-stall_cntrl : process(all)
+stall_cntrl : process(stall)
 begin
 	stall_fetch <= stall;
 	stall_dec <= stall;
@@ -43,7 +43,7 @@ begin
 	stall_wb <= stall;
 end process;
 
-flush_cntrl : process(all)
+flush_cntrl : process(pcsrc_in)
 begin
 	flush_fetch <= '0';
 	flush_dec <= '0';
