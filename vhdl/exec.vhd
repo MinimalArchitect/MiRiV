@@ -77,7 +77,7 @@ begin
 	end if;
 end process;
 
-state_input : process(flush, stall, program_counter, operation, memory_operation, writeback_operation, pc_in, op, memop_in, wbop_in)
+state_input : process(reset, clk, pc_in, program_counter, operation, memory_operation, writeback_operation, op, memop_in, wbop_in, flush, stall)
 begin
 	if flush = '1' then
 		next_program_counter <= pc_in;
@@ -99,7 +99,7 @@ end process;
 
 pc_old_out <= program_counter;
 
-new_program_counter : process(operation, program_counter)
+new_program_counter : process(all)
 	variable tmp_a		: unsigned(pc_type'range);
 	variable tmp_b		: unsigned(pc_type'range);
 	variable selector	: std_logic_vector(2 downto 0);
@@ -124,7 +124,7 @@ begin
 	pc_new_out <= std_logic_vector(tmp_a + tmp_b);
 end process;
 
-get_alu_data : process(operation, program_counter)
+get_alu_data : process(all)
 	variable selector	: std_logic_vector(2 downto 0);
 begin
 	alu_a <= (others => '0');
@@ -169,3 +169,4 @@ wrdata <= operation.readdata2;
 exec_op <= EXEC_NOP;
 
 end architecture;
+

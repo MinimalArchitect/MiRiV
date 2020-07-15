@@ -22,4 +22,18 @@ end fwd;
 
 architecture rtl of fwd is
 begin
+	check : process(reg, reg_write_mem, reg_write_wb)
+	begin
+		val <= (others => '0');
+		do_fwd <= '0';
+		
+		-- if the register is read and it is the one in the execute stage then forward
+		if (reg_write_mem.write = '1') and (reg = reg_write_mem.reg) then
+			val <= reg_write_mem.data;
+			do_fwd <= '1';
+		elsif (reg_write_wb.write = '1') and (reg = reg_write_wb.reg) then
+			val <= reg_write_wb.data;
+			do_fwd <= '1';
+		end if;
+	end process;
 end architecture;
