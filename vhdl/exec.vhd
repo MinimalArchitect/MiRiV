@@ -54,6 +54,17 @@ architecture rtl of exec is
 			Z	: out std_logic	:= '0'
 		);
 	end component;
+	
+	component fwd is
+		port (
+			reg_write_mem : in reg_write_type;
+			reg_write_wb  : in reg_write_type;
+			reg    : in  reg_adr_type;
+			val    : out data_type;
+			do_fwd : out std_logic
+		);
+	end component;
+
 
 	signal alu_a	: data_type;
 	signal alu_b	: data_type;
@@ -159,6 +170,24 @@ alu_inst : alu
 		B => alu_b,
 		R => aluresult,
 		Z => zero
+	);
+	
+fwdA_inst : fwd
+	port map(
+		reg_write_mem => fwd_a_mem;
+		reg_write_wb => fwd_a_wb;
+		reg => fwd_a_reg;
+		val => fwd_a_val;
+		do_fwd => fwd_a_do;
+	);
+
+fwdB_inst : fwd
+	port map(
+		reg_write_mem => fwd_b_mem;
+		reg_write_wb => fwd_b_wb;
+		reg => fwd_b_reg;
+		val => fwd_b_val;
+		do_fwd => fwd_b_do;
 	);
 
 memop_out <= memory_operation;
