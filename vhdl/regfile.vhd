@@ -57,7 +57,7 @@ begin
 end process;
 
 
-state_input : process(all)
+state_input : process(stall, regfile, read_address1, read_address2, write_address, write_data, regwrite, rdaddr1, rdaddr2, wraddr, wrdata)
 begin
 	if stall = '1' then
 		next_regfile <= regfile;
@@ -80,7 +80,7 @@ begin
 	end if;
 end process;
 
-read : process(all)
+read : process(reset, regfile, read_address1, read_address2, register_write, write_address, write_data)
 begin
 	if reset = '1' then
 		rddata1 <= regfile(to_integer(unsigned(read_address1)));

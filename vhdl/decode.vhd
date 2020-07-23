@@ -6,36 +6,36 @@ use work.core_pkg.all;
 use work.op_pkg.all;
 
 entity decode is
-    port (
-        clk, reset : in  std_logic;
-        stall      : in  std_logic;
-        flush      : in  std_logic;
+	port (
+		clk, reset	: in  std_logic;
+		stall		: in  std_logic;
+		flush		: in  std_logic;
 
-        -- from fetch
-        pc_in      : in  pc_type;
-        instr      : in  instr_type;
+		-- from fetch
+		pc_in		: in  pc_type;
+		instr		: in  instr_type;
 
-        -- from writeback
-        reg_write  : in reg_write_type;
+		-- from writeback
+		reg_write	: in reg_write_type;
 
-        -- towards next stages
-        pc_out     : out pc_type;
-        exec_op    : out exec_op_type;
-        mem_op     : out mem_op_type;
-        wb_op      : out wb_op_type;
+		-- towards next stages
+		pc_out		: out pc_type;
+		exec_op		: out exec_op_type;
+		mem_op		: out mem_op_type;
+		wb_op		: out wb_op_type;
 
-        -- exceptions
-        exc_dec    : out std_logic
-    );
+		-- exceptions
+		exc_dec		: out std_logic
+	);
 end entity;
 
 architecture rtl of decode is
 
-	constant OPCODE_BIT_WIDTH : integer := 7;
-	constant FUNCT7_BIT_WIDTH : integer := 7;
-	constant FUNCT3_BIT_WIDTH : integer := 3;
+	constant OPCODE_BIT_WIDTH	: integer := 7;
+	constant FUNCT7_BIT_WIDTH	: integer := 7;
+	constant FUNCT3_BIT_WIDTH	: integer := 3;
 
-	subtype opcode_type      is std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
+	subtype opcode_type is std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
 
 	constant OPC_LOAD	: opcode_type	:= "0000011";
 	constant OPC_STORE	: opcode_type	:= "0100011";
@@ -52,11 +52,11 @@ architecture rtl of decode is
 	signal funct7	: std_logic_vector(FUNCT7_BIT_WIDTH-1 downto 0);
 	signal funct3	: std_logic_vector(FUNCT3_BIT_WIDTH-1 downto 0);
 
-        signal program_counter		: pc_type;
-        signal instruction		: instr_type;
+	signal program_counter		: pc_type;
+	signal instruction		: instr_type;
 
-        signal next_program_counter	: pc_type;
-        signal next_instruction		: instr_type;
+	signal next_program_counter	: pc_type;
+	signal next_instruction		: instr_type;
 
 	signal opcode	: std_logic_vector(OPCODE_BIT_WIDTH-1 downto 0);
 
@@ -107,7 +107,7 @@ begin
 	end if;
 end process;
 
-state_input : process(all)
+state_input : process(flush, stall, program_counter, instruction, pc_in, instr)
 begin
 		if flush = '1' then
 			next_program_counter <= pc_in;

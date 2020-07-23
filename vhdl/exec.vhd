@@ -71,6 +71,13 @@ architecture rtl of exec is
 
 	signal pc_add_a	: pc_type;
 	signal pc_add_b	: pc_type;
+
+	signal fwddata1		: data_type;
+	signal fwddata2		: data_type;
+	signal do_fwddata1	: std_logic;
+	signal do_fwddata2	: std_logic;
+	signal data1		: data_type;
+	signal data2		: data_type;
 begin
 
 update : process(reset, clk)
@@ -129,7 +136,7 @@ begin
 			tmp_b := unsigned(to_pc_type(operation.imm));
 		when "101" =>
 			tmp_a := unsigned(to_pc_type(operation.imm));
-			tmp_b := unsigned(to_pc_type(operation.readdata1));
+			tmp_b := unsigned(to_pc_type(data1));
 		when others =>
 	end case;
 	pc_new_out <= std_logic_vector(tmp_a + tmp_b);
@@ -151,11 +158,11 @@ begin
 			alu_a <= to_data_type(program_counter);
 			alu_b <= operation.imm;
 		when "001" =>
-			alu_a <= operation.readdata1;
+			alu_a <= data1;
 			alu_b <= operation.imm;
 		when "011"|"111" =>
-			alu_a <= operation.readdata1;
-			alu_b <= operation.readdata2;
+			alu_a <= data1;
+			alu_b <= data2;
 		when "100"|"101" =>
 			alu_a <= to_data_type(program_counter);
 			alu_b <= std_logic_vector(to_unsigned(4, data_type'length));
@@ -163,7 +170,7 @@ begin
 	end case;
 end process;
 
-alu_inst : alu
+alu_inst : entity work.alu
 	port map(
 		op => operation.aluop,
 		A => alu_a,
@@ -193,8 +200,45 @@ fwdB_inst : fwd
 memop_out <= memory_operation;
 wbop_out <= writeback_operation;
 
-wrdata <= operation.readdata2;
+wrdata <= data2;
 
 exec_op <= EXEC_NOP;
 
+fwd_inst1 : entity work.fwd
+	port map(
+		reg_write_mem	=> reg_write_mem,
+		reg_write_wb	=> reg_write_wr,
+		reg		=> op.rs1,
+		val		=> fwddata1,
+		do_fwd		=> do_fwddata1
+	);
+
+forward_data1 : process(all)
+begin
+	if (do_fwddata1 = '1') then
+		data1 <= fwddata1;
+	else
+		data1 <= operation.readdata1;
+	end if;
+end process;
+
+fwd_inst2 : entity work.fwd
+	port map(
+		reg_write_mem	=> reg_write_mem,
+		reg_write_wb	=> reg_write_wr,
+		reg		=> op.rs2,
+		val		=> fwddata2,
+		do_fwd		=> do_fwddata2
+	);
+
+forward_data2 : process(all)
+begin
+	if (do_fwddata2 = '1') then
+		data2 <= fwddata2;
+	else
+		data2 <= operation.readdata2;
+	end if;
+end process;
+
 end architecture;
+
