@@ -46,15 +46,6 @@ architecture rtl of exec is
 	signal next_memory_operation	: mem_op_type;
 	signal next_writeback_operation	: wb_op_type;
 
-	component alu is
-		port (
-			op	: in  alu_op_type;
-			A, B	: in  data_type;
-			R	: out data_type	:= (others => '0');
-			Z	: out std_logic	:= '0'
-		);
-	end component;
-	
 	component fwd is
 		port (
 			reg_write_mem : in reg_write_type;
@@ -179,24 +170,6 @@ alu_inst : entity work.alu
 		Z => zero
 	);
 	
-fwdA_inst : fwd
-	port map(
-		reg_write_mem => fwd_a_mem;
-		reg_write_wb => fwd_a_wb;
-		reg => fwd_a_reg;
-		val => fwd_a_val;
-		do_fwd => fwd_a_do;
-	);
-
-fwdB_inst : fwd
-	port map(
-		reg_write_mem => fwd_b_mem;
-		reg_write_wb => fwd_b_wb;
-		reg => fwd_b_reg;
-		val => fwd_b_val;
-		do_fwd => fwd_b_do;
-	);
-
 memop_out <= memory_operation;
 wbop_out <= writeback_operation;
 
