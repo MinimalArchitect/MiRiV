@@ -43,6 +43,8 @@ begin
 	stall_wb <= stall;
 end process;
 
+-- if pcsrc_in is high, let a clock cycle pass, then flush decode, execute and memory stage.
+
 flush_cntrl : process(pcsrc_in)
 begin
 	flush_fetch <= '0';
@@ -55,9 +57,9 @@ begin
 
 	-- these stages are affected from a branch
 	if pcsrc_in = '1' then
-		flush_fetch <= '1';
 		flush_dec <= '1';
 		flush_exec <= '1';
+		flush_mem <= '1';
 	end if;
 end process;
 
