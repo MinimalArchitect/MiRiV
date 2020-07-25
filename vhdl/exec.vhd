@@ -181,7 +181,7 @@ fwd_inst1 : entity work.fwd
 	port map(
 		reg_write_mem	=> reg_write_mem,
 		reg_write_wb	=> reg_write_wr,
-		reg		=> op.rs1,
+		reg		=> operation.rs1,
 		val		=> fwddata1,
 		do_fwd		=> do_fwddata1
 	);
@@ -199,7 +199,7 @@ fwd_inst2 : entity work.fwd
 	port map(
 		reg_write_mem	=> reg_write_mem,
 		reg_write_wb	=> reg_write_wr,
-		reg		=> op.rs2,
+		reg		=> operation.rs2,
 		val		=> fwddata2,
 		do_fwd		=> do_fwddata2
 	);
