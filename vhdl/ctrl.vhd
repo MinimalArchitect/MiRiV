@@ -41,7 +41,7 @@ begin
 	stall_exec <= stall;
 	stall_mem <= stall;
 	stall_wb <= stall;
-
+/*
 	if wb_op_mem.rd = exec_op.rs1 and wb_op_mem.src = WBS_MEM then
 		stall_fetch <= '1';
 		stall_dec <= '1';
@@ -57,6 +57,7 @@ begin
 		stall_mem <= '1';
 		stall_wb <= '1';
 	end if;
+*/
 end process;
 
 -- if pcsrc_in is high, let a clock cycle pass, then flush decode, execute and memory stage.
