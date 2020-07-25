@@ -22,7 +22,6 @@ end pipeline;
 
 architecture impl of pipeline is
 	signal stall : std_logic;
-	signal flush : std_logic;
 
 	signal mem_busy_fetch	: std_logic;
 	signal mem_busy_mem	: std_logic;
@@ -86,8 +85,6 @@ begin
 			end if;
 		end if;
 	end process;
-
-	flush <= '0';
 
 	fetch_inst : entity work.fetch
 	port map(
