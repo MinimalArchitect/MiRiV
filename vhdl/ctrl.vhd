@@ -34,13 +34,29 @@ end ctrl;
 architecture rtl of ctrl is
 begin
 
-stall_cntrl : process(stall)
+stall_cntrl : process(stall, wb_op_mem, exec_op)
 begin
 	stall_fetch <= stall;
 	stall_dec <= stall;
 	stall_exec <= stall;
 	stall_mem <= stall;
 	stall_wb <= stall;
+
+	if wb_op_mem.rd = exec_op.rs1 and wb_op_mem.src = WBS_MEM then
+		stall_fetch <= '1';
+		stall_dec <= '1';
+		stall_exec <= '1';
+		stall_mem <= '1';
+		stall_wb <= '1';
+	end if;
+
+	if wb_op_mem.rd = exec_op.rs2 and wb_op_mem.src = WBS_MEM then
+		stall_fetch <= '1';
+		stall_dec <= '1';
+		stall_exec <= '1';
+		stall_mem <= '1';
+		stall_wb <= '1';
+	end if;
 end process;
 
 -- if pcsrc_in is high, let a clock cycle pass, then flush decode, execute and memory stage.

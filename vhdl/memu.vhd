@@ -106,7 +106,6 @@ begin
 				when others =>
 			end case;
 		when MEM_BU =>
-			R <= (others => '0');
 			case A(1 downto 0) is
 				when "00" =>
 					R(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= D.rddata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
@@ -118,7 +117,6 @@ begin
 					R(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= D.rddata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
 				when others =>
 			end case;
-
 		when MEM_H =>
 			case A(1 downto 0) is
 				when "00"|"01" =>
@@ -132,7 +130,6 @@ begin
 				when others =>
 			end case;
 		when MEM_HU =>
-			R <= (others => '0');
 			case A(1 downto 0) is
 				when "00"|"01" =>
 					R(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= D.rddata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
@@ -143,14 +140,10 @@ begin
 				when others =>
 			end case;
 		when MEM_W =>
-			case A(1 downto 0) is
-				when "00"|"01"|"10"|"11" =>
-					R(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= D.rddata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
-					R(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= D.rddata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
-					R(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= D.rddata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
-					R(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= D.rddata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
-				when others =>
-			end case;
+			R(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH) <= D.rddata(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
+			R(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH) <= D.rddata(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
+			R(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH) <= D.rddata(2*BYTE_WIDTH-1 downto 1*BYTE_WIDTH);
+			R(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH) <= D.rddata(1*BYTE_WIDTH-1 downto 0*BYTE_WIDTH);
 		when others =>
 	end case;
 end process;

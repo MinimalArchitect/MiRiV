@@ -175,7 +175,7 @@ wbop_out <= writeback_operation;
 
 wrdata <= data2;
 
-exec_op <= EXEC_NOP;
+exec_op <= operation;
 
 fwd_inst1 : entity work.fwd
 	port map(

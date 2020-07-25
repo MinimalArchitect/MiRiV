@@ -22,21 +22,20 @@ begin
 result : process (op, A, B)
 	variable shamt : integer;
 begin
-	R <= (others => '-');
 	case op is
 		when ALU_NOP =>
 			R <= B;
 		when ALU_SLT =>
 			if signed(A) < signed(B) then
-				R <= (0 => '1', others => '0');
+				R <= std_logic_vector(to_unsigned(1, R'length));
 			else
-				R <= (others => '0');
+				R <= std_logic_vector(to_unsigned(0, R'length));
 			end if;
 		when ALU_SLTU =>
 			if unsigned(A) < unsigned(B) then
-				R <= (0 => '1', others => '0');
+				R <= std_logic_vector(to_unsigned(1, R'length));
 			else
-				R <= (others => '0');
+				R <= std_logic_vector(to_unsigned(0, R'length));
 			end if;
 		when ALU_SLL =>
 			shamt := to_integer(unsigned(B(4 downto 0)));
@@ -58,6 +57,7 @@ begin
 		when ALU_XOR =>
 			R <= A xor B;
 		when others =>
+			R <= (others => '-');
 	end case;
 end process;
 

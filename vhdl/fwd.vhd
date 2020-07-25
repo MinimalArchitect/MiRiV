@@ -23,22 +23,22 @@ end fwd;
 architecture rtl of fwd is
 begin
 
-check : process(reg, reg_write_mem, reg_write_wb)
-begin
-	val <= (others => '0');
-	do_fwd <= '0';
+	check : process(reg, reg_write_mem, reg_write_wb)
+	begin
+		-- if the register is read and it is the one in the execute stage then forward
+		-- use the latest value possible (first check mem, then wb)
+			-- if it is the x0 register, then don't forward the value
 
-	-- if the register is read and it is the one in the execute stage then forward
-	-- use the latest value possible (first check mem, then wb)
-	if (unsigned(reg) = 0) then
-		-- if it is the x0 register, then don't forward the value
-	elsif (reg_write_mem.write = '1') and (reg = reg_write_mem.reg) then
-		val <= reg_write_mem.data;
-		do_fwd <= '1';
-	elsif (reg_write_wb.write = '1') and (reg = reg_write_wb.reg) then
-		val <= reg_write_wb.data;
-		do_fwd <= '1';
-	end if;
-end process;
+		if reg = reg_write_mem.reg and unsigned(reg) /= 0 then
+			do_fwd <= '1';
+			val <= reg_write_mem.data;
+		elsif reg = reg_write_wb.reg and unsigned(reg) /= 0 then
+			do_fwd <= '1';
+			val <= reg_write_wb.data;
+		else
+			do_fwd <= '0';
+			val <= (others => '0');
+		end if;
+	end process;
 
 end architecture;
