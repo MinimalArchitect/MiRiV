@@ -169,7 +169,7 @@ alu_inst : entity work.alu
 		R => aluresult,
 		Z => zero
 	);
-	
+
 memop_out <= memory_operation;
 wbop_out <= writeback_operation;
 
@@ -188,9 +188,8 @@ fwd_inst1 : entity work.fwd
 
 forward_data1 : process(all)
 begin
-	if (do_fwddata1 = '1') then
-		data1 <= fwddata1;
-	else
+	data1 <= fwddata1;
+	if (do_fwddata1 = '0') then
 		data1 <= operation.readdata1;
 	end if;
 end process;
@@ -206,9 +205,8 @@ fwd_inst2 : entity work.fwd
 
 forward_data2 : process(all)
 begin
-	if (do_fwddata2 = '1') then
-		data2 <= fwddata2;
-	else
+	data2 <= fwddata2;
+	if (do_fwddata2 = '0') then
 		data2 <= operation.readdata2;
 	end if;
 end process;

@@ -25,6 +25,9 @@ begin
 
 	check : process(reg, reg_write_mem, reg_write_wb)
 	begin
+		do_fwd <= '0';
+		val <= (others => '0');
+
 		-- if the register is read and it is the one in the execute stage then forward
 		-- use the latest value possible (first check mem, then wb)
 			-- if it is the x0 register, then don't forward the value
@@ -35,9 +38,6 @@ begin
 		elsif reg = reg_write_wb.reg and unsigned(reg) /= 0 then
 			do_fwd <= '1';
 			val <= reg_write_wb.data;
-		else
-			do_fwd <= '0';
-			val <= (others => '0');
 		end if;
 	end process;
 

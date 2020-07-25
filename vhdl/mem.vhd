@@ -152,10 +152,10 @@ begin
 	begin
 		reg_write.write <= writeback_operation.write;
 		reg_write.reg <= writeback_operation.rd;
+		
+		reg_write.data <= aluresult;
 		if writeback_operation.src = WBS_MEM then
 			reg_write.data <= memresult;
-		else
-			reg_write.data <= aluresult;
 		end if;
 	end process;
 end architecture;
