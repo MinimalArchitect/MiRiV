@@ -382,8 +382,8 @@ architecture bench of tb is
 			& " alusrc=" & to_string(output_ref.exec_op.alusrc3) & to_string(output_ref.exec_op.alusrc2) & to_string(output_ref.exec_op.alusrc1)
 			& " rs1=" & to_string(output_ref.exec_op.rs1)
 			& " rs2=" & to_string(output_ref.exec_op.rs2)
-			& " data1=" & slv_to_hex(outp.exec_op.readdata1)
-			& " data2=" & slv_to_hex(outp.exec_op.readdata2)
+			& " data1=" & slv_to_hex(output_ref.exec_op.readdata1)
+			& " data2=" & slv_to_hex(output_ref.exec_op.readdata2)
 			& " imm=" & slv_to_hex(output_ref.exec_op.imm) & lf
 
 			& "** actual:   aluop=" & to_string(outp.exec_op.aluop)

@@ -135,6 +135,7 @@ begin
 		pcsrc <= '0';
 		pc_old_out <= pc_old;
 		aluresult_out <= aluresult;
+
 		case memory_operation.branch is
 			when BR_NOP =>
 				pcsrc <= '0';
@@ -148,14 +149,10 @@ begin
 		end case;
 	end process;
 
-	forwarding : process(writeback_operation, aluresult, memresult)
+	forwarding : process(writeback_operation, aluresult)
 	begin
 		reg_write.write <= writeback_operation.write;
 		reg_write.reg <= writeback_operation.rd;
-		
 		reg_write.data <= aluresult;
-		if writeback_operation.src = WBS_MEM then
-			reg_write.data <= memresult;
-		end if;
 	end process;
 end architecture;

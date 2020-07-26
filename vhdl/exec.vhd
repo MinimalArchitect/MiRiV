@@ -48,20 +48,19 @@ architecture rtl of exec is
 
 	component fwd is
 		port (
-			reg_write_mem : in reg_write_type;
-			reg_write_wb  : in reg_write_type;
-			reg    : in  reg_adr_type;
-			val    : out data_type;
-			do_fwd : out std_logic
+			reg_write_mem	: in  reg_write_type;
+			reg_write_wb	: in  reg_write_type;
+			reg		: in  reg_adr_type;
+			val		: out data_type;
+			do_fwd		: out std_logic
 		);
 	end component;
 
+	signal alu_a		: data_type;
+	signal alu_b		: data_type;
 
-	signal alu_a	: data_type;
-	signal alu_b	: data_type;
-
-	signal pc_add_a	: pc_type;
-	signal pc_add_b	: pc_type;
+	signal pc_add_a		: pc_type;
+	signal pc_add_b		: pc_type;
 
 	signal fwddata1		: data_type;
 	signal fwddata2		: data_type;
@@ -188,8 +187,9 @@ fwd_inst1 : entity work.fwd
 
 forward_data1 : process(all)
 begin
-	data1 <= fwddata1;
-	if (do_fwddata1 = '0') then
+	if (do_fwddata1 = '1') then
+		data1 <= fwddata1;
+	else
 		data1 <= operation.readdata1;
 	end if;
 end process;
@@ -205,8 +205,9 @@ fwd_inst2 : entity work.fwd
 
 forward_data2 : process(all)
 begin
-	data2 <= fwddata2;
-	if (do_fwddata2 = '0') then
+	if (do_fwddata2 = '1') then
+		data2 <= fwddata2;
+	else
 		data2 <= operation.readdata2;
 	end if;
 end process;

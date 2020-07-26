@@ -82,7 +82,7 @@ architecture rtl of decode is
 		);
 	end component;
 
-	signal source : std_logic_vector(2 downto 0);
+	signal source		: std_logic_vector(2 downto 0);
 
 	signal memory_read	: std_logic;
 	signal memory_write	: std_logic;
