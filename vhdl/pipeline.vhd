@@ -73,6 +73,7 @@ architecture impl of pipeline is
 	signal exec_op_execute	: exec_op_type;
 	signal pcsrc_cntrl	: std_logic;
 begin
+
 	sync : process(clk, reset)
 	begin
 		if reset = '0' then

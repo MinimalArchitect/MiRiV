@@ -19,62 +19,62 @@ end alu;
 architecture rtl of alu is
 begin
 
-result : process (op, A, B)
-	variable shamt : integer;
-begin
-	case op is
-		when ALU_NOP =>
-			R <= B;
-		when ALU_SLT =>
-			if signed(A) < signed(B) then
-				R <= std_logic_vector(to_unsigned(1, R'length));
-			else
-				R <= std_logic_vector(to_unsigned(0, R'length));
-			end if;
-		when ALU_SLTU =>
-			if unsigned(A) < unsigned(B) then
-				R <= std_logic_vector(to_unsigned(1, R'length));
-			else
-				R <= std_logic_vector(to_unsigned(0, R'length));
-			end if;
-		when ALU_SLL =>
-			shamt := to_integer(unsigned(B(4 downto 0)));
-			R <= std_logic_vector(shift_left(unsigned(A), shamt));
-		when ALU_SRL =>
-			shamt := to_integer(unsigned(B(4 downto 0)));
-			R <= std_logic_vector(shift_right(unsigned(A), shamt));
-		when ALU_SRA =>
-			shamt := to_integer(unsigned(B(4 downto 0)));
-			R <= std_logic_vector(shift_right(signed(A), shamt));
-		when ALU_ADD =>
-			R <= std_logic_vector(signed(A) + signed(B));
-		when ALU_SUB =>
-			R <= std_logic_vector(signed(A) - signed(B));
-		when ALU_AND =>
-			R <= A and B;
-		when ALU_OR =>
-			R <= A or B;
-		when ALU_XOR =>
-			R <= A xor B;
-		when others =>
-			R <= (others => '-');
-	end case;
-end process;
+	result : process (op, A, B)
+		variable shamt : integer;
+	begin
+		case op is
+			when ALU_NOP =>
+				R <= B;
+			when ALU_SLT =>
+				if signed(A) < signed(B) then
+					R <= std_logic_vector(to_unsigned(1, R'length));
+				else
+					R <= std_logic_vector(to_unsigned(0, R'length));
+				end if;
+			when ALU_SLTU =>
+				if unsigned(A) < unsigned(B) then
+					R <= std_logic_vector(to_unsigned(1, R'length));
+				else
+					R <= std_logic_vector(to_unsigned(0, R'length));
+				end if;
+			when ALU_SLL =>
+				shamt := to_integer(unsigned(B(4 downto 0)));
+				R <= std_logic_vector(shift_left(unsigned(A), shamt));
+			when ALU_SRL =>
+				shamt := to_integer(unsigned(B(4 downto 0)));
+				R <= std_logic_vector(shift_right(unsigned(A), shamt));
+			when ALU_SRA =>
+				shamt := to_integer(unsigned(B(4 downto 0)));
+				R <= std_logic_vector(shift_right(signed(A), shamt));
+			when ALU_ADD =>
+				R <= std_logic_vector(signed(A) + signed(B));
+			when ALU_SUB =>
+				R <= std_logic_vector(signed(A) - signed(B));
+			when ALU_AND =>
+				R <= A and B;
+			when ALU_OR =>
+				R <= A or B;
+			when ALU_XOR =>
+				R <= A xor B;
+			when others =>
+				R <= (others => '-');
+		end case;
+	end process;
 
-zero_flag : process (op, A, B, R)
-begin
-	case op is
-		when ALU_SUB =>
-			if A = B then
-				Z <= '1';
-			else
-				Z <= '0';
-			end if;
-		when ALU_SLT|ALU_SLTU =>
-			Z <= not R(0);
-		when others =>
-			Z <= '-';
-	end case;
-end process;
+	zero_flag : process (op, A, B, R)
+	begin
+		case op is
+			when ALU_SUB =>
+				if A = B then
+					Z <= '1';
+				else
+					Z <= '0';
+				end if;
+			when ALU_SLT|ALU_SLTU =>
+				Z <= not R(0);
+			when others =>
+				Z <= '-';
+		end case;
+	end process;
 
 end architecture;

@@ -67,6 +67,7 @@ architecture rtl of mem is
 	signal write_data		: data_type;
 	signal write_data_next		: data_type;
 begin
+
 	memu_inst : entity work.memu
 	port map(
 		op	=> memory_operation.mem,
@@ -84,57 +85,57 @@ begin
 	sync : process(clk, reset)
 	begin
 		if reset = '0' then
-			memory_operation <= MEM_NOP;
-			writeback_operation <= WB_NOP;
-			pc_new <= ZERO_PC;
-			pc_old <= ZERO_PC;
-			aluresult <= ZERO_DATA;
-			write_data <= ZERO_DATA;
+			memory_operation	<= MEM_NOP;
+			writeback_operation	<= WB_NOP;
+			pc_new			<= ZERO_PC;
+			pc_old			<= ZERO_PC;
+			aluresult		<= ZERO_DATA;
+			write_data		<= ZERO_DATA;
 		elsif rising_edge(clk) then
-			memory_operation <= memory_operation_next;
-			writeback_operation <= writeback_operation_next;
-			pc_new <= pc_new_next;
-			pc_old <= pc_old_next;
-			aluresult <= aluresult_next;
-			write_data <= write_data_next;
+			memory_operation	<= memory_operation_next;
+			writeback_operation	<= writeback_operation_next;
+			pc_new			<= pc_new_next;
+			pc_old			<= pc_old_next;
+			aluresult		<= aluresult_next;
+			write_data		<= write_data_next;
 		end if;
 	end process;
 
 	proc : process(flush, stall, memory_operation, writeback_operation, pc_new, pc_old, aluresult, write_data, mem_op, wbop_in, pc_new_in, pc_old_in, aluresult_in, wrdata)
 	begin
 		if flush = '1' then
-			memory_operation_next <= MEM_NOP;
-			writeback_operation_next <= WB_NOP;
-			pc_new_next <= ZERO_PC;
-			pc_old_next <= ZERO_PC;
-			aluresult_next <= ZERO_DATA;
-			write_data_next <= ZERO_DATA;
+			memory_operation_next		<= MEM_NOP;
+			writeback_operation_next	<= WB_NOP;
+			pc_new_next			<= ZERO_PC;
+			pc_old_next			<= ZERO_PC;
+			aluresult_next			<= ZERO_DATA;
+			write_data_next			<= ZERO_DATA;
 		elsif stall = '1' then
-			memory_operation_next <= memory_operation;
-			memory_operation_next.mem.memread <= '0';
-			memory_operation_next.mem.memwrite <= '0';
-			writeback_operation_next <= writeback_operation;
-			pc_new_next <= pc_new;
-			pc_old_next <= pc_old;
-			aluresult_next <= aluresult;
-			write_data_next <= write_data;
+			memory_operation_next		<= memory_operation;
+			memory_operation_next.mem.memread	<= '0';
+			memory_operation_next.mem.memwrite	<= '0';
+			writeback_operation_next	<= writeback_operation;
+			pc_new_next			<= pc_new;
+			pc_old_next			<= pc_old;
+			aluresult_next			<= aluresult;
+			write_data_next			<= write_data;
 		else
-			memory_operation_next <= mem_op;
-			writeback_operation_next <= wbop_in;
-			pc_new_next <= pc_new_in;
-			pc_old_next <= pc_old_in;
-			aluresult_next <= aluresult_in;
-			write_data_next <= wrdata;
+			memory_operation_next		<= mem_op;
+			writeback_operation_next	<= wbop_in;
+			pc_new_next			<= pc_new_in;
+			pc_old_next			<= pc_old_in;
+			aluresult_next			<= aluresult_in;
+			write_data_next			<= wrdata;
 		end if;
 	end process;
 
 	output : process (writeback_operation, pc_new, pc_old, aluresult, memory_operation, zero)
 	begin
-		wbop_out <= writeback_operation;
-		pc_new_out <= pc_new;
-		pcsrc <= '0';
-		pc_old_out <= pc_old;
-		aluresult_out <= aluresult;
+		wbop_out	<= writeback_operation;
+		pc_new_out	<= pc_new;
+		pcsrc		<= '0';
+		pc_old_out	<= pc_old;
+		aluresult_out	<= aluresult;
 
 		case memory_operation.branch is
 			when BR_NOP =>
@@ -151,8 +152,9 @@ begin
 
 	forwarding : process(writeback_operation, aluresult)
 	begin
-		reg_write.write <= writeback_operation.write;
-		reg_write.reg <= writeback_operation.rd;
-		reg_write.data <= aluresult;
+		reg_write.write	<= writeback_operation.write;
+		reg_write.reg	<= writeback_operation.rd;
+		reg_write.data	<= aluresult;
 	end process;
+
 end architecture;
