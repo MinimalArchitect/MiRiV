@@ -62,6 +62,11 @@ begin
 		if stall = '1' then
 			next_regfile <= regfile;
 
+--			-- it is possible to write into the register-file, if it is stalled
+--			if regwrite = '1' and to_integer(unsigned(wraddr)) /= 0 then
+--				next_regfile(to_integer(unsigned(wraddr))) <= wrdata;
+--			end if;
+
 			next_read_address1	<= read_address1;
 			next_read_address2	<= read_address2;
 			next_write_address	<= write_address;
